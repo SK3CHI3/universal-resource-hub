@@ -1,11 +1,11 @@
-import { Book, Code, Palette, Briefcase, Graduation, Music } from "lucide-react";
+import { Book, Code, Palette, Briefcase, GraduationCap, Music } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const categories = [
   { name: "Technology", icon: Code, color: "from-blue-500 to-blue-600" },
   { name: "Design", icon: Palette, color: "from-purple-500 to-purple-600" },
   { name: "Business", icon: Briefcase, color: "from-green-500 to-green-600" },
-  { name: "Education", icon: Graduation, color: "from-yellow-500 to-yellow-600" },
+  { name: "Education", icon: GraduationCap, color: "from-yellow-500 to-yellow-600" },
   { name: "Books", icon: Book, color: "from-red-500 to-red-600" },
   { name: "Music", icon: Music, color: "from-pink-500 to-pink-600" },
 ];

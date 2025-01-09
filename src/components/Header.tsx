@@ -1,10 +1,19 @@
 import { Search } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Header = () => {
+  const { toast } = useToast();
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      toast({
+        title: "Section not found",
+        description: "The requested section could not be found.",
+        variant: "destructive",
+      });
     }
   };
 

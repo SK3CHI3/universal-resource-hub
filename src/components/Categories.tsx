@@ -51,7 +51,7 @@ export const Categories = () => {
   };
 
   return (
-    <div className="py-16 px-4">
+    <div id="categories" className="py-16 px-4">
       <h2 className="text-3xl font-bold text-center mb-4">Popular Categories</h2>
       <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
         Browse through our curated collection of free resources across various categories

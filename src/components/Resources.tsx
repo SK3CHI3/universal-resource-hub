@@ -1,11 +1,14 @@
 import { ResourceCard } from "./ResourceCard";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
+import { useMemo } from "react";
 
 export const Resources = () => {
-  const filteredResources = useResourceStore((state) => state.filteredResources());
+  const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
+  
+  const filteredResources = useMemo(() => getFilteredResources(), [getFilteredResources]);
 
   return (
     <div className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50">

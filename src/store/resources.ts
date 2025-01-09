@@ -9,10 +9,9 @@ interface ResourceStore {
   setSelectedCategory: (category: string | null) => void;
   addResource: (resource: Resource) => void;
   removeResource: (id: string) => void;
-  filteredResources: () => Resource[];
+  getFilteredResources: () => Resource[];
 }
 
-// Mock database with initial resources
 const initialResources: Resource[] = [
   {
     id: '1',
@@ -80,16 +79,15 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     resources: state.resources.filter((resource) => resource.id !== id)
   })),
   
-  filteredResources: () => {
-    const { resources, searchQuery, selectedCategory } = get();
-    
-    return resources.filter((resource) => {
-      const matchesSearch = searchQuery === '' || 
-        resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  getFilteredResources: () => {
+    const state = get();
+    return state.resources.filter((resource) => {
+      const matchesSearch = state.searchQuery === '' || 
+        resource.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+        resource.description.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+        resource.tags.some(tag => tag.toLowerCase().includes(state.searchQuery.toLowerCase()));
         
-      const matchesCategory = !selectedCategory || resource.category === selectedCategory;
+      const matchesCategory = !state.selectedCategory || resource.category === state.selectedCategory;
       
       return matchesSearch && matchesCategory;
     });

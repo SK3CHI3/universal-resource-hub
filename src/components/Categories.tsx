@@ -1,5 +1,7 @@
 import { Book, Code, Palette, Briefcase, GraduationCap, Music } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useResourceStore } from "@/store/resources";
+import { cn } from "@/lib/utils";
 
 const categories = [
   { name: "Technology", icon: Code, color: "from-blue-500 to-blue-600" },
@@ -11,6 +13,12 @@ const categories = [
 ];
 
 export const Categories = () => {
+  const { selectedCategory, setSelectedCategory } = useResourceStore();
+
+  const handleCategoryClick = (categoryName: string) => {
+    setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
+  };
+
   return (
     <div className="py-16 px-4">
       <h2 className="text-3xl font-bold text-center mb-12">Popular Categories</h2>
@@ -18,7 +26,11 @@ export const Categories = () => {
         {categories.map((category) => (
           <Card
             key={category.name}
-            className="p-6 hover:shadow-lg transition-shadow cursor-pointer group relative overflow-hidden"
+            className={cn(
+              "p-6 hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden",
+              selectedCategory === category.name && "ring-2 ring-brand-purple"
+            )}
+            onClick={() => handleCategoryClick(category.name)}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
             <div className="flex items-center space-x-4">

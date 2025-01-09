@@ -1,7 +1,18 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useResourceStore } from "@/store/resources";
+import { useEffect, useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const Hero = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const { setSearchQuery } = useResourceStore();
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  useEffect(() => {
+    setSearchQuery(debouncedSearch);
+  }, [debouncedSearch, setSearchQuery]);
+
   return (
     <div className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
       {/* Animated background elements */}
@@ -29,6 +40,8 @@ export const Hero = () => {
         <div className="relative w-full max-w-2xl">
           <Input
             type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="What are you looking for? (e.g., Free Python Course, Design Templates)"
             className="w-full h-12 pl-12 pr-4 rounded-lg border-2 border-gray-200 focus:border-brand-purple backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
           />

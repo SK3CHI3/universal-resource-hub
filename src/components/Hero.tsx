@@ -3,18 +3,40 @@ import { Input } from "@/components/ui/input";
 import { useResourceStore } from "@/store/resources";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Hero = () => {
   const [searchInput, setSearchInput] = useState("");
   const { setSearchQuery } = useResourceStore();
   const debouncedSearch = useDebounce(searchInput, 300);
+  const { toast } = useToast();
 
   useEffect(() => {
     setSearchQuery(debouncedSearch);
+    if (debouncedSearch.length > 0) {
+      const element = document.getElementById('resources');
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
   }, [debouncedSearch, setSearchQuery]);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      toast({
+        title: "Searching...",
+        description: `Finding resources matching "${searchInput}"`,
+      });
+      const element = document.getElementById('resources');
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
-    <div className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+    <div id="hero" className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Primary gradient background */}
@@ -37,7 +59,7 @@ export const Hero = () => {
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl">
           Discover thousands of free resources for technology, design, education, and more.
         </p>
-        <div className="relative w-full max-w-2xl">
+        <form onSubmit={handleSearch} className="relative w-full max-w-2xl">
           <Input
             type="text"
             value={searchInput}
@@ -46,7 +68,7 @@ export const Hero = () => {
             className="w-full h-12 pl-12 pr-4 rounded-lg border-2 border-gray-200 focus:border-brand-purple backdrop-blur-sm bg-white/50 dark:bg-gray-900/50"
           />
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+        </form>
       </div>
     </div>
   );

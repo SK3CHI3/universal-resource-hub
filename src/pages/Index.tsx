@@ -2,6 +2,7 @@ import { Hero } from "@/components/Hero";
 import { Categories } from "@/components/Categories";
 import { Resources } from "@/components/Resources";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -13,10 +14,11 @@ const Index = () => {
       </div>
       
       <Header />
-      <main className="pt-20"> {/* Add padding top to account for fixed header */}
+      <main className="pt-20">
         <Hero />
         <Categories />
         <Resources />
+        <Footer />
       </main>
     </div>
   );

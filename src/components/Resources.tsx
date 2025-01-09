@@ -11,7 +11,7 @@ export const Resources = () => {
   const filteredResources = useMemo(() => getFilteredResources(), [getFilteredResources]);
 
   return (
-    <div className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50">
+    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-6xl mx-auto">
         {filteredResources.length > 0 ? (
           <>

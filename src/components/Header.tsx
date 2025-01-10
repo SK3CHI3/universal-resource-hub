@@ -1,4 +1,4 @@
-import { Search, Menu, X, Github, Telegram } from "lucide-react";
+import { Search, Menu, X, Github, MessageCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -58,7 +58,7 @@ export const Header = () => {
           rel="noopener noreferrer"
           className="text-gray-700 dark:text-gray-200 hover:text-brand-purple dark:hover:text-brand-blue transition-colors"
         >
-          <Telegram className="w-5 h-5" />
+          <MessageCircle className="w-5 h-5" />
         </a>
         <a
           href="https://github.com"

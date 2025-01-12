@@ -25,6 +25,21 @@ export const Resources = () => {
     <ResourceSkeleton key={`skeleton-${i}`} />
   ));
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen">
       <div className="max-w-6xl mx-auto">
@@ -47,17 +62,24 @@ export const Resources = () => {
             {searchQuery && ` matching "${searchQuery}"`}
           </motion.p>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           <AnimatePresence mode="wait">
             {isLoading ? skeletons : (
               filteredResources.length > 0 ? (
-                filteredResources.map((resource) => (
+                filteredResources.map((resource, index) => (
                   <motion.div
                     key={resource.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    variants={item}
+                    initial="hidden"
+                    animate="show"
                     exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="animate-float-delayed"
                   >
                     <ResourceCard {...resource} />
                   </motion.div>
@@ -81,7 +103,7 @@ export const Resources = () => {
               )
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

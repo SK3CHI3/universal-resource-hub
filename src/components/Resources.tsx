@@ -3,6 +3,7 @@ import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Resources = () => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -25,39 +26,61 @@ export const Resources = () => {
   ));
 
   return (
-    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50">
+    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-4">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl font-bold text-center mb-4"
+        >
           {isLoading ? "Loading Resources..." : "Available Resources"}
-        </h2>
+        </motion.h2>
         {!isLoading && (
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto"
+          >
             {selectedCategory 
               ? `Showing resources in ${selectedCategory}`
               : 'Showing all available resources'}
             {searchQuery && ` matching "${searchQuery}"`}
-          </p>
+          </motion.p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? skeletons : (
-            filteredResources.length > 0 ? (
-              filteredResources.map((resource) => (
-                <ResourceCard key={resource.id} {...resource} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-16">
-                <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
-                <h2 className="text-2xl font-bold mb-2">No resources found</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {searchQuery
-                    ? `No resources found matching "${searchQuery}"`
-                    : selectedCategory
-                    ? `No resources found in ${selectedCategory}`
-                    : 'No resources available'}
-                </p>
-              </div>
-            )
-          )}
+          <AnimatePresence mode="wait">
+            {isLoading ? skeletons : (
+              filteredResources.length > 0 ? (
+                filteredResources.map((resource) => (
+                  <motion.div
+                    key={resource.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ResourceCard {...resource} />
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="col-span-full text-center py-16"
+                >
+                  <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+                  <h2 className="text-2xl font-bold mb-2">No resources found</h2>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    {searchQuery
+                      ? `No resources found matching "${searchQuery}"`
+                      : selectedCategory
+                      ? `No resources found in ${selectedCategory}`
+                      : 'No resources available'}
+                  </p>
+                </motion.div>
+              )
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLinks } from "./navigation/NavLinks";
 import { MobileMenu } from "./navigation/MobileMenu";
+import { Logo } from "./Logo";
 
 export const Header = () => {
   const { toast } = useToast();
@@ -35,9 +36,9 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div 
           onClick={() => scrollToSection('hero')}
-          className="text-xl md:text-2xl font-bold bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent cursor-pointer"
+          className="cursor-pointer"
         >
-          Universal Resource Hub
+          <Logo />
         </div>
 
         {isMobile ? (

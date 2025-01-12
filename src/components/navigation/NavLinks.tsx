@@ -36,10 +36,11 @@ export const NavLinks = ({ onScrollToSection, setIsOpen }: NavLinksProps) => {
           <MessageCircle className="w-5 h-5" />
         </a>
         <a
-          href="https://github.com"
+          href="https://github.com/sk3chi3"
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-700 dark:text-gray-200 hover:text-brand-purple dark:hover:text-brand-blue transition-colors"
+          title="@sk3chi3 on GitHub"
         >
           <Github className="w-5 h-5" />
         </a>

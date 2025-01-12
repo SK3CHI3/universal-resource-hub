@@ -13,12 +13,6 @@ export const Hero = () => {
 
   useEffect(() => {
     setSearchQuery(debouncedSearch);
-    if (debouncedSearch.length > 0) {
-      const element = document.getElementById('resources');
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
   }, [debouncedSearch, setSearchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {

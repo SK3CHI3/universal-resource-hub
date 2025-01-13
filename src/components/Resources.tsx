@@ -3,13 +3,16 @@ import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 export const Resources = () => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 300], [0, 50]);
   
   const filteredResources = useMemo(() => getFilteredResources(), [getFilteredResources, selectedCategory, searchQuery]);
 
@@ -25,24 +28,13 @@ export const Resources = () => {
     <ResourceSkeleton key={`skeleton-${i}`} />
   ));
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
-    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative overflow-hidden">
+      <motion.div 
+        style={{ y }}
+        className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none"
+      />
+      <div className="max-w-6xl mx-auto relative">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,9 +55,9 @@ export const Resources = () => {
           </motion.p>
         )}
         <motion.div 
-          variants={container}
-          initial="hidden"
-          animate="show"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <AnimatePresence mode="wait">
@@ -74,12 +66,10 @@ export const Resources = () => {
                 filteredResources.map((resource, index) => (
                   <motion.div
                     key={resource.id}
-                    variants={item}
-                    initial="hidden"
-                    animate="show"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="animate-float-delayed"
                   >
                     <ResourceCard {...resource} />
                   </motion.div>

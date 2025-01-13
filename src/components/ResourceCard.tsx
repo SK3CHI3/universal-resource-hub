@@ -15,7 +15,7 @@ export const ResourceCard = ({
   dateAdded 
 }: Resource) => {
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group animate-float">
+    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group">
       {imageUrl && (
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <img 

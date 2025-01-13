@@ -57,12 +57,13 @@ export const Categories = () => {
         Browse through our curated collection of free resources across various categories
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <Card
             key={category.name}
             className={cn(
               "p-6 hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden",
-              selectedCategory === category.name && "ring-2 ring-brand-purple"
+              selectedCategory === category.name && "ring-2 ring-brand-purple",
+              index % 2 === 0 ? "animate-float" : "animate-float-delayed"
             )}
             onClick={() => handleCategoryClick(category.name)}
           >

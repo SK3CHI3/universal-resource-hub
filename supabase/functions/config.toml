@@ -1,0 +1,4 @@
+project_id = "uaegputqyrqcmqsyswvk"
+
+[functions.collect-resources]
+verify_jwt = false

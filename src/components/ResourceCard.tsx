@@ -3,8 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
+import { useResourceTracking } from "@/hooks/useResourceTracking";
+import { useEffect } from "react";
 
 export const ResourceCard = ({ 
+  id,
   title, 
   description, 
   source, 
@@ -14,14 +17,25 @@ export const ResourceCard = ({
   rating,
   dateAdded 
 }: Resource) => {
+  const { trackResourceEvent } = useResourceTracking();
+
+  useEffect(() => {
+    trackResourceEvent(id, 'visit');
+  }, [id, trackResourceEvent]);
+
+  const handleClick = () => {
+    trackResourceEvent(id, 'click');
+    window.open(link, "_blank");
+  };
+
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group">
+    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
       {imageUrl && (
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <img 
             src={imageUrl} 
             alt={title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>
       )}
@@ -45,7 +59,7 @@ export const ResourceCard = ({
             </Badge>
           ))}
         </div>
-        <Button className="w-full" onClick={() => window.open(link, "_blank")}>
+        <Button className="w-full" onClick={handleClick}>
           Access Now
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>

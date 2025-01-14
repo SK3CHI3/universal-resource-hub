@@ -41,19 +41,19 @@ const AdminDashboard = () => {
       if (analyticsError) throw analyticsError;
 
       // Calculate statistics
-      const total_resources = resources.length;
-      const total_visits = analytics.filter(a => a.event_type === 'visit').length;
-      const total_clicks = analytics.filter(a => a.event_type === 'click').length;
+      const total_resources = resources?.length || 0;
+      const total_visits = analytics?.filter(a => a.event_type === 'visit').length || 0;
+      const total_clicks = analytics?.filter(a => a.event_type === 'click').length || 0;
 
-      // Group resources by category
-      const categoryCount = resources.reduce((acc: Record<string, number>, resource) => {
+      // Group resources by category with proper type casting
+      const categoryCount = resources?.reduce((acc: Record<string, number>, resource) => {
         acc[resource.category] = (acc[resource.category] || 0) + 1;
         return acc;
-      }, {});
+      }, {}) || {};
 
       const resources_by_category = Object.entries(categoryCount).map(([category, count]) => ({
         category,
-        count,
+        count: count as number,
       }));
 
       setStats({
@@ -76,6 +76,15 @@ const AdminDashboard = () => {
       </div>
     );
   }
+
+  const chartConfig = {
+    resources: {
+      theme: {
+        light: "#6D28D9",
+        dark: "#8B5CF6"
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto p-8">
@@ -120,12 +129,12 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
-            <ChartContainer>
+            <ChartContainer config={chartConfig}>
               <BarChart data={stats?.resources_by_category || []}>
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="count" fill="#6D28D9" />
+                <Bar dataKey="count" fill="var(--color-resources)" />
               </BarChart>
             </ChartContainer>
           </div>

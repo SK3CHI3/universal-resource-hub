@@ -9,7 +9,81 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      resources: {
+        Row: {
+          category: string
+          clicks: number | null
+          date_added: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          link: string
+          rating: number | null
+          source: string
+          tags: string[] | null
+          title: string
+          visits: number | null
+        }
+        Insert: {
+          category: string
+          clicks?: number | null
+          date_added?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link: string
+          rating?: number | null
+          source: string
+          tags?: string[] | null
+          title: string
+          visits?: number | null
+        }
+        Update: {
+          category?: string
+          clicks?: number | null
+          date_added?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link?: string
+          rating?: number | null
+          source?: string
+          tags?: string[] | null
+          title?: string
+          visits?: number | null
+        }
+        Relationships: []
+      }
+      scraping_history: {
+        Row: {
+          completed_at: string | null
+          error: string | null
+          id: string
+          resources_added: number | null
+          started_at: string | null
+          status: string | null
+          urls_scraped: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          resources_added?: number | null
+          started_at?: string | null
+          status?: string | null
+          urls_scraped?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          resources_added?: number | null
+          started_at?: string | null
+          status?: string | null
+          urls_scraped?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,10 +1,8 @@
 import { useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 export const useResourceTracking = () => {
-  const { toast } = useToast();
-
   const trackResourceEvent = useCallback(async (resourceId: string, eventType: 'visit' | 'click') => {
     if (!resourceId || !eventType) {
       console.error('Missing required tracking parameters');
@@ -22,7 +20,8 @@ export const useResourceTracking = () => {
         });
 
       if (analyticsError) {
-        throw analyticsError;
+        console.error('Analytics error:', analyticsError);
+        return;
       }
 
       // Update resource counts
@@ -33,7 +32,8 @@ export const useResourceTracking = () => {
         .single();
 
       if (fetchError) {
-        throw fetchError;
+        console.error('Fetch error:', fetchError);
+        return;
       }
 
       if (resource) {
@@ -47,7 +47,7 @@ export const useResourceTracking = () => {
           .eq('id', resourceId);
 
         if (updateError) {
-          throw updateError;
+          console.error('Update error:', updateError);
         }
       }
     } catch (error) {
@@ -55,10 +55,10 @@ export const useResourceTracking = () => {
       toast({
         variant: "destructive",
         title: "Tracking Error",
-        description: "Failed to track resource interaction. Please try again later.",
+        description: "Failed to track resource interaction.",
       });
     }
-  }, [toast]);
+  }, []);
 
   return { trackResourceEvent };
 };

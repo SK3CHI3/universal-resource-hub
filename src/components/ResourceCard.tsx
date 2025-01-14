@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { useEffect } from "react";
 
 export const ResourceCard = ({ 
   id,
@@ -18,10 +17,6 @@ export const ResourceCard = ({
   dateAdded 
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
-
-  useEffect(() => {
-    trackResourceEvent(id, 'visit');
-  }, [id, trackResourceEvent]);
 
   const handleClick = () => {
     trackResourceEvent(id, 'click');
@@ -48,8 +43,8 @@ export const ResourceCard = ({
           <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
           <span className="text-sm">{rating}</span>
         </div>
-        <p className="text-sm text-gray-500">Source: {source}</p>
-        <p className="text-sm text-gray-500">Added: {new Date(dateAdded).toLocaleDateString()}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Source: {source}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Added: {new Date(dateAdded).toLocaleDateString()}</p>
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4">
         <div className="flex flex-wrap gap-2">

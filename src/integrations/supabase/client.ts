@@ -15,5 +15,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   },
   db: {
     schema: 'public'
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json'
+    }
   }
 });

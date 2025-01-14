@@ -1,14 +1,39 @@
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLinks } from "./navigation/NavLinks";
 import { MobileMenu } from "./navigation/MobileMenu";
 import { Logo } from "./Logo";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Header = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    // Check if user has a theme preference in localStorage
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+    setTheme(initialTheme);
+    document.documentElement.classList.toggle("dark", initialTheme === "dark");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark");
+    localStorage.setItem("theme", newTheme);
+    
+    toast({
+      title: `${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`,
+      duration: 1500,
+    });
+  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -41,17 +66,32 @@ export const Header = () => {
           <Logo />
         </div>
 
-        {isMobile ? (
-          <MobileMenu 
-            isOpen={isOpen} 
-            setIsOpen={setIsOpen} 
-            onScrollToSection={scrollToSection} 
-          />
-        ) : (
-          <nav className="hidden md:flex items-center space-x-6">
-            <NavLinks onScrollToSection={scrollToSection} />
-          </nav>
-        )}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="rounded-full"
+          >
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Button>
+
+          {isMobile ? (
+            <MobileMenu 
+              isOpen={isOpen} 
+              setIsOpen={setIsOpen} 
+              onScrollToSection={scrollToSection} 
+            />
+          ) : (
+            <nav className="hidden md:flex items-center space-x-6">
+              <NavLinks onScrollToSection={scrollToSection} />
+            </nav>
+          )}
+        </div>
       </div>
     </header>
   );

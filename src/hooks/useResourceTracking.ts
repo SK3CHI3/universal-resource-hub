@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 export const useResourceTracking = () => {
   const trackResourceEvent = useCallback(async (resourceId: string, eventType: 'visit' | 'click') => {

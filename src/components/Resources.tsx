@@ -1,14 +1,16 @@
-import { ResourceCard } from "./ResourceCard";
+import { ResourceList } from "./ResourceList";
+import { ResourceControls } from "./ResourceControls";
 import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export const Resources = () => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
+  const viewMode = useResourceStore((state) => state.viewMode);
   const [isLoading, setIsLoading] = useState(true);
   
   const { scrollY } = useScroll();
@@ -42,57 +44,54 @@ export const Resources = () => {
         >
           {isLoading ? "Loading Resources..." : "Available Resources"}
         </motion.h2>
+        
         {!isLoading && (
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto"
-          >
-            {selectedCategory 
-              ? `Showing resources in ${selectedCategory}`
-              : 'Showing all available resources'}
-            {searchQuery && ` matching "${searchQuery}"`}
-          </motion.p>
+          <>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
+            >
+              {selectedCategory 
+                ? `Showing resources in ${selectedCategory}`
+                : 'Showing all available resources'}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </motion.p>
+
+            <ResourceControls />
+          </>
         )}
+
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          <AnimatePresence mode="wait">
-            {isLoading ? skeletons : (
-              filteredResources.length > 0 ? (
-                filteredResources.map((resource, index) => (
-                  <motion.div
-                    key={resource.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                  >
-                    <ResourceCard {...resource} />
-                  </motion.div>
-                ))
-              ) : (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="col-span-full text-center py-16"
-                >
-                  <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
-                  <h2 className="text-2xl font-bold mb-2">No resources found</h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    {searchQuery
-                      ? `No resources found matching "${searchQuery}"`
-                      : selectedCategory
-                      ? `No resources found in ${selectedCategory}`
-                      : 'No resources available'}
-                  </p>
-                </motion.div>
-              )
-            )}
-          </AnimatePresence>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {skeletons}
+            </div>
+          ) : (
+            filteredResources.length > 0 ? (
+              <ResourceList resources={filteredResources} viewMode={viewMode} />
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+                <h2 className="text-2xl font-bold mb-2">No resources found</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  {searchQuery
+                    ? `No resources found matching "${searchQuery}"`
+                    : selectedCategory
+                    ? `No resources found in ${selectedCategory}`
+                    : 'No resources available'}
+                </p>
+              </motion.div>
+            )
+          )}
         </motion.div>
       </div>
     </div>

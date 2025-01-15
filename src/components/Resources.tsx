@@ -1,5 +1,7 @@
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
+import { ResourceSearch } from "./ResourceSearch";
+import { ResourceFilters } from "./ResourceFilters";
 import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
@@ -58,7 +60,13 @@ export const Resources = () => {
               {searchQuery && ` matching "${searchQuery}"`}
             </motion.p>
 
-            <ResourceControls />
+            <div className="space-y-6 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <ResourceSearch />
+                <ResourceFilters />
+              </div>
+              <ResourceControls />
+            </div>
           </>
         )}
 

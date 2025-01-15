@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -14,6 +16,14 @@ const App = () => {
         <TooltipProvider>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
           </Routes>
           <Toaster />
           <Sonner />

@@ -7,65 +7,131 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Loader2 } from "lucide-react";
-
-interface ResourceStats {
-  total_resources: number;
-  total_visits: number;
-  total_clicks: number;
-  resources_by_category: { category: string; count: number }[];
-}
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { Resource } from "@/types";
+import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<ResourceStats | null>(null);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchStats();
+    fetchResources();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchResources = async () => {
     try {
-      const { data: resources, error: resourcesError } = await supabase
+      const { data, error } = await supabase
         .from('resources')
-        .select('*');
+        .select('*')
+        .order('date_added', { ascending: false });
 
-      if (resourcesError) throw resourcesError;
-
-      const { data: analytics, error: analyticsError } = await supabase
-        .from('analytics')
-        .select('*');
-
-      if (analyticsError) throw analyticsError;
-
-      // Calculate statistics
-      const total_resources = resources?.length || 0;
-      const total_visits = analytics?.filter(a => a.event_type === 'visit').length || 0;
-      const total_clicks = analytics?.filter(a => a.event_type === 'click').length || 0;
-
-      // Group resources by category with proper type casting
-      const categoryCount = resources?.reduce((acc: Record<string, number>, resource) => {
-        acc[resource.category] = (acc[resource.category] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      const resources_by_category = Object.entries(categoryCount).map(([category, count]) => ({
-        category,
-        count: count as number,
-      }));
-
-      setStats({
-        total_resources,
-        total_visits,
-        total_clicks,
-        resources_by_category,
-      });
+      if (error) throw error;
+      setResources(data || []);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Error fetching resources:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch resources",
+        variant: "destructive",
+      });
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('resources')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Resource deleted successfully",
+      });
+      fetchResources();
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete resource",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const resourceData = {
+      title: formData.get('title') as string,
+      description: formData.get('description') as string,
+      source: formData.get('source') as string,
+      link: formData.get('link') as string,
+      category: formData.get('category') as string,
+      tags: (formData.get('tags') as string).split(',').map(tag => tag.trim()),
+    };
+
+    try {
+      if (selectedResource) {
+        const { error } = await supabase
+          .from('resources')
+          .update(resourceData)
+          .eq('id', selectedResource.id);
+
+        if (error) throw error;
+        toast({
+          title: "Success",
+          description: "Resource updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from('resources')
+          .insert([resourceData]);
+
+        if (error) throw error;
+        toast({
+          title: "Success",
+          description: "Resource created successfully",
+        });
+      }
+
+      setIsDialogOpen(false);
+      setSelectedResource(null);
+      fetchResources();
+    } catch (error) {
+      console.error('Error saving resource:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save resource",
+        variant: "destructive",
+      });
     }
   };
 
@@ -77,67 +143,135 @@ const AdminDashboard = () => {
     );
   }
 
-  const chartConfig = {
-    resources: {
-      theme: {
-        light: "#6D28D9",
-        dark: "#8B5CF6"
-      }
-    }
-  };
-
   return (
     <div className="container mx-auto p-8">
-      <h1 className="mb-8 text-4xl font-bold">Admin Dashboard</h1>
-      
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Resources</CardTitle>
-            <CardDescription>Number of resources in the database</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.total_resources}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Visits</CardTitle>
-            <CardDescription>Number of resource page visits</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.total_visits}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Clicks</CardTitle>
-            <CardDescription>Number of resource link clicks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.total_clicks}</p>
-          </CardContent>
-        </Card>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">Resource Management</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => setSelectedResource(null)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Resource
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedResource ? 'Edit Resource' : 'Add New Resource'}
+              </DialogTitle>
+              <DialogDescription>
+                Fill in the details for the resource. Click save when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Input
+                  name="title"
+                  placeholder="Title"
+                  defaultValue={selectedResource?.title}
+                  required
+                />
+              </div>
+              <div>
+                <Textarea
+                  name="description"
+                  placeholder="Description"
+                  defaultValue={selectedResource?.description}
+                  required
+                />
+              </div>
+              <div>
+                <Input
+                  name="source"
+                  placeholder="Source"
+                  defaultValue={selectedResource?.source}
+                  required
+                />
+              </div>
+              <div>
+                <Input
+                  name="link"
+                  placeholder="Link"
+                  defaultValue={selectedResource?.link}
+                  required
+                />
+              </div>
+              <div>
+                <Input
+                  name="category"
+                  placeholder="Category"
+                  defaultValue={selectedResource?.category}
+                  required
+                />
+              </div>
+              <div>
+                <Input
+                  name="tags"
+                  placeholder="Tags (comma-separated)"
+                  defaultValue={selectedResource?.tags?.join(', ')}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                {selectedResource ? 'Update' : 'Create'} Resource
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Card className="mt-8">
+      <Card>
         <CardHeader>
-          <CardTitle>Resources by Category</CardTitle>
-          <CardDescription>Distribution of resources across categories</CardDescription>
+          <CardTitle>Resources</CardTitle>
+          <CardDescription>
+            Manage your resources here. You can add, edit, or delete resources.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
-            <ChartContainer config={chartConfig}>
-              <BarChart data={stats?.resources_by_category || []}>
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="var(--color-resources)" />
-              </BarChart>
-            </ChartContainer>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Date Added</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {resources.map((resource) => (
+                <TableRow key={resource.id}>
+                  <TableCell>{resource.title}</TableCell>
+                  <TableCell>{resource.category}</TableCell>
+                  <TableCell>{resource.source}</TableCell>
+                  <TableCell>
+                    {new Date(resource.dateAdded).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedResource(resource);
+                          setIsDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(resource.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

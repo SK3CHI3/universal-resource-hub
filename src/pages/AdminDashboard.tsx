@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Resource } from "@/types";
 import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import {
@@ -49,7 +49,24 @@ const AdminDashboard = () => {
         .order('date_added', { ascending: false });
 
       if (error) throw error;
-      setResources(data || []);
+
+      // Map the snake_case database fields to camelCase for our Resource type
+      const mappedResources: Resource[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description || '',
+        source: item.source,
+        tags: item.tags || [],
+        link: item.link,
+        category: item.category,
+        imageUrl: item.image_url,
+        rating: item.rating || 0,
+        dateAdded: item.date_added,
+        visits: item.visits || 0,
+        clicks: item.clicks || 0
+      }));
+
+      setResources(mappedResources);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -89,6 +106,8 @@ const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    // Map form data to match database column names
     const resourceData = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
@@ -96,6 +115,7 @@ const AdminDashboard = () => {
       link: formData.get('link') as string,
       category: formData.get('category') as string,
       tags: (formData.get('tags') as string).split(',').map(tag => tag.trim()),
+      image_url: formData.get('imageUrl') as string || null,
     };
 
     try {
@@ -210,6 +230,13 @@ const AdminDashboard = () => {
                   placeholder="Tags (comma-separated)"
                   defaultValue={selectedResource?.tags?.join(', ')}
                   required
+                />
+              </div>
+              <div>
+                <Input
+                  name="imageUrl"
+                  placeholder="Image URL (optional)"
+                  defaultValue={selectedResource?.imageUrl}
                 />
               </div>
               <Button type="submit" className="w-full">

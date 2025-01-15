@@ -8,27 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Resource } from "@/types";
-import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Loader2, Plus } from "lucide-react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { ResourceForm } from '@/components/admin/ResourceForm';
+import { ResourceTable } from '@/components/admin/ResourceTable';
 
 const AdminDashboard = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -50,7 +35,6 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Map the snake_case database fields to camelCase for our Resource type
       const mappedResources: Resource[] = (data || []).map(item => ({
         id: item.id,
         title: item.title,
@@ -107,7 +91,6 @@ const AdminDashboard = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    // Map form data to match database column names
     const resourceData = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
@@ -174,76 +157,10 @@ const AdminDashboard = () => {
               Add Resource
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedResource ? 'Edit Resource' : 'Add New Resource'}
-              </DialogTitle>
-              <DialogDescription>
-                Fill in the details for the resource. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Input
-                  name="title"
-                  placeholder="Title"
-                  defaultValue={selectedResource?.title}
-                  required
-                />
-              </div>
-              <div>
-                <Textarea
-                  name="description"
-                  placeholder="Description"
-                  defaultValue={selectedResource?.description}
-                  required
-                />
-              </div>
-              <div>
-                <Input
-                  name="source"
-                  placeholder="Source"
-                  defaultValue={selectedResource?.source}
-                  required
-                />
-              </div>
-              <div>
-                <Input
-                  name="link"
-                  placeholder="Link"
-                  defaultValue={selectedResource?.link}
-                  required
-                />
-              </div>
-              <div>
-                <Input
-                  name="category"
-                  placeholder="Category"
-                  defaultValue={selectedResource?.category}
-                  required
-                />
-              </div>
-              <div>
-                <Input
-                  name="tags"
-                  placeholder="Tags (comma-separated)"
-                  defaultValue={selectedResource?.tags?.join(', ')}
-                  required
-                />
-              </div>
-              <div>
-                <Input
-                  name="imageUrl"
-                  placeholder="Image URL (optional)"
-                  defaultValue={selectedResource?.imageUrl}
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {selectedResource ? 'Update' : 'Create'} Resource
-              </Button>
-            </form>
-          </DialogContent>
+          <ResourceForm
+            selectedResource={selectedResource}
+            onSubmit={handleSubmit}
+          />
         </Dialog>
       </div>
 
@@ -255,50 +172,14 @@ const AdminDashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Date Added</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {resources.map((resource) => (
-                <TableRow key={resource.id}>
-                  <TableCell>{resource.title}</TableCell>
-                  <TableCell>{resource.category}</TableCell>
-                  <TableCell>{resource.source}</TableCell>
-                  <TableCell>
-                    {new Date(resource.dateAdded).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedResource(resource);
-                          setIsDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(resource.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <ResourceTable
+            resources={resources}
+            onEdit={(resource) => {
+              setSelectedResource(resource);
+              setIsDialogOpen(true);
+            }}
+            onDelete={handleDelete}
+          />
         </CardContent>
       </Card>
     </div>

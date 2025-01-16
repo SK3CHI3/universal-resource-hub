@@ -1,69 +1,56 @@
-# Welcome to your Lovable project
+Universal Resource Hub
+Welcome to the Universal Resource Hub! This comprehensive web platform is designed to aggregate, organize, and present free educational and professional resources across multiple categories. With a user-friendly interface and automated resource collection, discovering valuable content has never been easier.
+Key Features
+- Resource Discovery
+- Advanced Search: Enjoy real-time search functionality with debounced input.
+- Category Filtering: Explore resources across six main categories:
+- Technology (Programming tutorials, coding resources)
+- Design (UI kits, design templates)
+- Business (Business templates, guides)
+- Education (Online courses, tutorials)
+- Books (Free ebooks, digital publications)
+- Music (Music theory, instruments)
 
-## Project info
 
-**URL**: https://lovable.dev/projects/61c55539-05cc-4ed5-bd6e-6dabc33cace4
+- User Interface
+- Responsive Design: Fully responsive layout suitable for mobile, tablet, and desktop.
+- Modern UI:
+- Clean, gradient-enhanced design
+- Animated backgrounds and transitions
+- Interactive cards with hover effects
+- Options for grid and list views of resources
 
-## How can I edit this code?
 
-There are several ways of editing your application.
+- Resource Management
+- Automated Collection: Daily automatic collection of resources from configured sources, with a built-in scraping system and history tracking.
+- Analytics Tracking: Monitor visits and clicks on resources, along with usage analytics and popularity metrics.
 
-**Use Lovable**
+- Admin Features
+- Admin Dashboard: Access a protected admin route for resource management, including CRUD operations, scraping history monitoring, and source management.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/61c55539-05cc-4ed5-bd6e-6dabc33cace4) and start prompting.
+- Data Organization
+- Resource Information: Each resource includes title, description, source attribution, category classification, tags, ratings, visit and click tracking, and timestamps.
 
-Changes made via Lovable will be committed automatically to this repo.
+- Technical Infrastructure
+- Frontend: Built with React and TypeScript, using Tailwind CSS, Shadcn UI components, and Framer Motion for animations.
+- Backend: Powered by Supabase for data storage and management, with Edge Functions for automated tasks and Row Level Security for data protection.
+- Deployment: Automated deployment to Netlify with continuous integration via GitHub.
 
-**Use your preferred IDE**
+- Performance Features
+- Optimized loading through debounced search, lazy loading of resources, skeletal loading states, and efficient state management with Zustand.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Resource Display Options
+- Flexible views with grid and list options and sorting by date added, rating, title, and popularity.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Data Structure
+- Resource schema with unique identifiers, content metadata, analytics data, and categorization information, alongside event logging and user interaction tracking.
 
-Follow these steps:
+- Security Features
+- Protected admin routes, Row Level Security in Supabase, secure API endpoints, and admin-only resource management.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Maintenance
+- Automated daily resource collection, built-in error logging, scraping history tracking, and source management system.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/61c55539-05cc-4ed5-bd6e-6dabc33cace4) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Visit Us
+For more information and to start exploring, visit our website: https://universal-resource-hub.netlify.app/
+Discover free educational resources today!

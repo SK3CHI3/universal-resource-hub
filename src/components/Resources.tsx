@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceSearch } from "./ResourceSearch";
@@ -8,7 +9,7 @@ import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-export const Resources = () => {
+export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
@@ -18,6 +19,7 @@ export const Resources = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
   
+  // Memoize filtered resources
   const filteredResources = useMemo(() => getFilteredResources(), [getFilteredResources, selectedCategory, searchQuery]);
 
   useEffect(() => {
@@ -28,9 +30,11 @@ export const Resources = () => {
     return () => clearTimeout(timer);
   }, [selectedCategory, searchQuery]);
 
-  const skeletons = Array(6).fill(0).map((_, i) => (
-    <ResourceSkeleton key={`skeleton-${i}`} />
-  ));
+  const skeletons = useMemo(() => (
+    Array(6).fill(0).map((_, i) => (
+      <ResourceSkeleton key={`skeleton-${i}`} />
+    ))
+  ), []);
 
   return (
     <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative overflow-hidden">
@@ -104,4 +108,6 @@ export const Resources = () => {
       </div>
     </div>
   );
-};
+});
+
+Resources.displayName = "Resources";

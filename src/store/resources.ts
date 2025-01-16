@@ -50,17 +50,29 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   
   getFilteredResources: () => {
     const state = get();
-    const filtered = state.resources.filter((resource) => {
-      const matchesSearch = state.searchQuery === '' || 
-        resource.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        resource.description?.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        resource.tags.some(tag => tag.toLowerCase().includes(state.searchQuery.toLowerCase()));
-        
-      const matchesCategory = !state.selectedCategory || resource.category === state.selectedCategory;
-      
-      return matchesSearch && matchesCategory;
-    });
+    let filtered = state.resources;
 
+    // Apply search filter
+    if (state.searchQuery.trim()) {
+      const searchLower = state.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((resource) => {
+        return (
+          resource.title.toLowerCase().includes(searchLower) ||
+          resource.description?.toLowerCase().includes(searchLower) ||
+          resource.tags.some(tag => tag.toLowerCase().includes(searchLower)) ||
+          resource.category.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+
+    // Apply category filter
+    if (state.selectedCategory) {
+      filtered = filtered.filter(
+        resource => resource.category === state.selectedCategory
+      );
+    }
+
+    // Apply sorting
     return filtered.sort((a, b) => {
       const aValue = a[state.sortBy];
       const bValue = b[state.sortBy];

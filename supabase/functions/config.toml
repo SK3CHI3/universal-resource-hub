@@ -1,4 +1,1 @@
 project_id = "vrbqjzthymraypchvalm"
-
-[collect-resources]
-verify_jwt = false

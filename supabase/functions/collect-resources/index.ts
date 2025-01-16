@@ -1,11 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Resource } from '../../../src/types'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
+// Define types directly in the edge function
 interface ScrapedResource {
   title: string;
   description: string;
@@ -14,6 +9,11 @@ interface ScrapedResource {
   category: string;
   tags: string[];
   imageUrl?: string;
+}
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 const SCRAPING_SOURCES = [
@@ -27,7 +27,6 @@ const SCRAPING_SOURCES = [
     url: 'https://dev.to',
     category: 'Technology',
   },
-  // Add more sources as needed
 ];
 
 async function scrapeResource(source: typeof SCRAPING_SOURCES[0]): Promise<ScrapedResource[]> {

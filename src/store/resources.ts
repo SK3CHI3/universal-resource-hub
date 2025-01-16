@@ -50,18 +50,19 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   
   getFilteredResources: () => {
     const state = get();
-    let filtered = [...state.resources]; // Create a new array to avoid mutations
+    let filtered = [...state.resources];
 
     // Apply search filter if there's a search query
     if (state.searchQuery) {
+      const searchTerms = state.searchQuery.toLowerCase().trim().split(' ');
       filtered = filtered.filter((resource) => {
-        const searchTerms = state.searchQuery.split(' ').filter(term => term.length > 0);
-        return searchTerms.every(term => 
-          resource.title.toLowerCase().includes(term) ||
-          resource.description?.toLowerCase().includes(term) ||
-          resource.tags.some(tag => tag.toLowerCase().includes(term)) ||
-          resource.category.toLowerCase().includes(term)
-        );
+        const resourceText = `
+          ${resource.title.toLowerCase()}
+          ${resource.description?.toLowerCase() || ''}
+          ${resource.category.toLowerCase()}
+          ${resource.tags.join(' ').toLowerCase()}
+        `;
+        return searchTerms.every(term => resourceText.includes(term));
       });
     }
 

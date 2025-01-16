@@ -1,4 +1,4 @@
-project_id = "uaegputqyrqcmqsyswvk"
+project_id = "vrbqjzthymraypchvalm"
 
-[functions.collect-resources]
+[collect-resources]
 verify_jwt = false

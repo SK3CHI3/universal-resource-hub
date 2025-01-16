@@ -3,7 +3,6 @@ import { Categories } from "@/components/Categories";
 import { Resources } from "@/components/Resources";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { CrawlForm } from "@/components/CrawlForm";
 
 const Index = () => {
   return (
@@ -19,12 +18,6 @@ const Index = () => {
         <Hero />
         <Categories />
         <Resources />
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">Crawl a Website</h2>
-            <CrawlForm />
-          </div>
-        </section>
         <Footer />
       </main>
     </div>

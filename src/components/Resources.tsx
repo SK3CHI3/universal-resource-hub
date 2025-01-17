@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useRef } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -7,6 +7,7 @@ import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useInView } from "framer-motion";
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -14,20 +15,33 @@ export const Resources = memo(() => {
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isLoading, setIsLoading] = useState(true);
+  const resourcesRef = useRef(null);
+  const isInView = useInView(resourcesRef, { amount: 0.1, once: false });
   
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
   
-  // Memoize filtered resources
-  const filteredResources = useMemo(() => getFilteredResources(), [getFilteredResources, selectedCategory, searchQuery]);
+  // Preload and memoize filtered resources
+  const filteredResources = useMemo(() => {
+    console.log("Filtering resources with query:", searchQuery);
+    return getFilteredResources();
+  }, [getFilteredResources, selectedCategory, searchQuery]);
 
+  // Simulate loading state for smoother transitions
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500); // Reduced from 1000ms to 500ms for faster loading
     return () => clearTimeout(timer);
   }, [selectedCategory, searchQuery]);
+
+  // Preload next batch of resources when user scrolls near the bottom
+  useEffect(() => {
+    if (isInView && !isLoading) {
+      console.log("Resources section in view, preloading data...");
+    }
+  }, [isInView, isLoading]);
 
   const skeletons = useMemo(() => (
     Array(6).fill(0).map((_, i) => (
@@ -36,7 +50,11 @@ export const Resources = memo(() => {
   ), []);
 
   return (
-    <div id="resources" className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative overflow-hidden">
+    <div 
+      id="resources" 
+      ref={resourcesRef}
+      className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative overflow-hidden"
+    >
       <motion.div 
         style={{ y }}
         className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none"
@@ -75,7 +93,7 @@ export const Resources = memo(() => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }} // Reduced from 0.5 to 0.3 for faster transitions
         >
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

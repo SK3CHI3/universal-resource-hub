@@ -10,7 +10,9 @@ export const ResourceSearch = () => {
   const debouncedSearch = useDebounce(localSearch, 300);
 
   useEffect(() => {
-    setSearchQuery(debouncedSearch.toLowerCase().trim());
+    const trimmedSearch = debouncedSearch.trim();
+    console.log('Setting search query:', trimmedSearch); // Debug log
+    setSearchQuery(trimmedSearch);
   }, [debouncedSearch, setSearchQuery]);
 
   return (

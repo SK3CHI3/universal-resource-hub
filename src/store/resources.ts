@@ -27,7 +27,11 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   sortDirection: 'desc',
   viewMode: 'grid',
   
-  setSearchQuery: (query) => set({ searchQuery: query }),
+  setSearchQuery: (query) => {
+    console.log('Search query being set to:', query); // Debug log
+    set({ searchQuery: query });
+  },
+  
   setSelectedCategory: (category) => {
     set({ selectedCategory: category });
     const resourcesSection = document.getElementById('resources');
@@ -51,22 +55,30 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   getFilteredResources: () => {
     const state = get();
     let filtered = [...state.resources];
+    
+    console.log('Current search query:', state.searchQuery); // Debug log
 
-    // Apply search filter if there's a search query
-    if (state.searchQuery) {
-      const searchTerms = state.searchQuery.toLowerCase().trim().split(' ');
+    // Only apply search filter if there's a non-empty search query
+    if (state.searchQuery && state.searchQuery.length > 0) {
+      const searchTerms = state.searchQuery.toLowerCase().split(/\s+/).filter(term => term.length > 0);
+      
+      console.log('Search terms:', searchTerms); // Debug log
+      
       filtered = filtered.filter((resource) => {
-        const resourceText = `
-          ${resource.title.toLowerCase()}
-          ${resource.description?.toLowerCase() || ''}
-          ${resource.category.toLowerCase()}
-          ${resource.tags.join(' ').toLowerCase()}
-        `;
-        return searchTerms.every(term => resourceText.includes(term));
+        const searchableText = [
+          resource.title,
+          resource.description || '',
+          resource.category,
+          ...resource.tags
+        ].join(' ').toLowerCase();
+        
+        return searchTerms.every(term => searchableText.includes(term));
       });
+      
+      console.log('Filtered results count:', filtered.length); // Debug log
     }
 
-    // Apply category filter
+    // Apply category filter if selected
     if (state.selectedCategory) {
       filtered = filtered.filter(
         resource => resource.category === state.selectedCategory

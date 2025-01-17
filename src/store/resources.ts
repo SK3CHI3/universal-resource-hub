@@ -28,7 +28,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   viewMode: 'grid',
   
   setSearchQuery: (query) => {
-    console.log('Search query being set to:', query); // Debug log
+    console.log('Search query being set:', query);
     set({ searchQuery: query });
   },
   
@@ -56,26 +56,30 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     const state = get();
     let filtered = [...state.resources];
     
-    console.log('Current search query:', state.searchQuery); // Debug log
-
-    // Only apply search filter if there's a non-empty search query
-    if (state.searchQuery && state.searchQuery.length > 0) {
-      const searchTerms = state.searchQuery.toLowerCase().split(/\s+/).filter(term => term.length > 0);
-      
-      console.log('Search terms:', searchTerms); // Debug log
+    // Apply search filter if there's a non-empty search query
+    if (state.searchQuery) {
+      console.log('Filtering with search query:', state.searchQuery);
       
       filtered = filtered.filter((resource) => {
+        // Create a searchable string from all relevant resource fields
         const searchableText = [
           resource.title,
-          resource.description || '',
+          resource.description,
           resource.category,
-          ...resource.tags
-        ].join(' ').toLowerCase();
+          resource.source,
+          ...(resource.tags || [])
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
         
-        return searchTerms.every(term => searchableText.includes(term));
+        // Check if the searchable text includes the search query
+        const matches = searchableText.includes(state.searchQuery);
+        console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
+        return matches;
       });
       
-      console.log('Filtered results count:', filtered.length); // Debug log
+      console.log(`Found ${filtered.length} matching resources`);
     }
 
     // Apply category filter if selected

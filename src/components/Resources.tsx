@@ -32,14 +32,14 @@ export const Resources = memo(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500); // Reduced from 1000ms to 500ms for faster loading
+    }, 500);
     return () => clearTimeout(timer);
   }, [selectedCategory, searchQuery]);
 
-  // Preload next batch of resources when user scrolls near the bottom
+  // Log when resources section comes into view
   useEffect(() => {
     if (isInView && !isLoading) {
-      console.log("Resources section in view, preloading data...");
+      console.log("Resources section in view");
     }
   }, [isInView, isLoading]);
 
@@ -53,7 +53,7 @@ export const Resources = memo(() => {
     <div 
       id="resources" 
       ref={resourcesRef}
-      className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative overflow-hidden"
+      className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative"
     >
       <motion.div 
         style={{ y }}
@@ -93,7 +93,7 @@ export const Resources = memo(() => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }} // Reduced from 0.5 to 0.3 for faster transitions
+          transition={{ duration: 0.3 }}
         >
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

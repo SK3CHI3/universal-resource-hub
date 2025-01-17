@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
-import { ResourceSearch } from "./ResourceSearch";
 import { ResourceFilters } from "./ResourceFilters";
 import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
@@ -66,7 +65,6 @@ export const Resources = memo(() => {
 
             <div className="space-y-6 mb-8">
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <ResourceSearch />
                 <ResourceFilters />
               </div>
               <ResourceControls />

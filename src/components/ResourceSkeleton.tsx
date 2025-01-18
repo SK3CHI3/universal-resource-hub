@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface ResourceSkeletonProps {
-  viewMode?: 'grid' | 'list'
+  viewMode?: 'grid' | 'list';
 }
 
 export const ResourceSkeleton = ({ viewMode = 'grid' }: ResourceSkeletonProps) => {

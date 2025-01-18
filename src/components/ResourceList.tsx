@@ -8,16 +8,12 @@ interface ResourceListProps {
   viewMode: 'grid' | 'list';
 }
 
-// Memoize individual resource components
-const MemoizedResourceCard = memo(ResourceCard);
-const MemoizedResourceListItem = memo(ResourceListItem);
-
 export const ResourceList = memo(({ resources, viewMode }: ResourceListProps) => {
   if (viewMode === 'grid') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resources.map((resource) => (
-          <MemoizedResourceCard key={resource.id} {...resource} />
+          <ResourceCard key={resource.id} {...resource} />
         ))}
       </div>
     );
@@ -26,12 +22,10 @@ export const ResourceList = memo(({ resources, viewMode }: ResourceListProps) =>
   return (
     <div className="flex flex-col gap-4">
       {resources.map((resource) => (
-        <MemoizedResourceListItem key={resource.id} {...resource} />
+        <ResourceListItem key={resource.id} {...resource} />
       ))}
     </div>
   );
 });
 
 ResourceList.displayName = "ResourceList";
-
-export default ResourceList;

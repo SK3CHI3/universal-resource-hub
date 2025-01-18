@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { FirecrawlService } from '@/utils/FirecrawlService';
 import { Card } from "@/components/ui/card";
+import { supabase } from '@/lib/supabase';
 
 interface CrawlResult {
   success: boolean;
@@ -31,19 +32,42 @@ export const CrawlForm = () => {
     
     try {
       console.log('Starting crawl for URL:', url);
-      const result = await FirecrawlService.crawlWebsite(url);
-      
-      if (result.success) {
+      const { data, error } = await supabase.functions.invoke('crawl-website', {
+        body: { url }
+      });
+
+      if (error) {
+        console.error('Error during crawl:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to crawl website",
+          variant: "destructive",
+          duration: 3000,
+        });
+        return;
+      }
+
+      if (data.success) {
         toast({
           title: "Success",
           description: "Website crawled successfully",
           duration: 3000,
         });
-        setCrawlResult(result.data);
+        setCrawlResult(data);
+        
+        // Simulate progress
+        let currentProgress = 0;
+        const progressInterval = setInterval(() => {
+          currentProgress += 10;
+          setProgress(currentProgress);
+          if (currentProgress >= 100) {
+            clearInterval(progressInterval);
+          }
+        }, 200);
       } else {
         toast({
           title: "Error",
-          description: result.error || "Failed to crawl website",
+          description: data.error || "Failed to crawl website",
           variant: "destructive",
           duration: 3000,
         });

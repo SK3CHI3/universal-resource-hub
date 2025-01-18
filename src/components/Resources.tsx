@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useInView } from "framer-motion";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -15,42 +16,46 @@ export const Resources = memo(() => {
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const resourcesRef = useRef(null);
   const isInView = useInView(resourcesRef, { amount: 0.1, once: false });
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
   
-  // Preload and memoize filtered resources
+  // Memoize filtered resources
   const filteredResources = useMemo(() => {
-    console.log("Filtering resources with query:", searchQuery);
+    console.log("Filtering resources with query:", debouncedSearchQuery);
     return getFilteredResources();
-  }, [getFilteredResources, selectedCategory, searchQuery]);
+  }, [getFilteredResources, selectedCategory, debouncedSearchQuery]);
 
-  // Simulate loading state for smoother transitions
+  // Handle initial load and subsequent filter changes
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [selectedCategory, searchQuery]);
-
-  // Log when resources section comes into view
-  useEffect(() => {
-    if (isInView && !isLoading) {
-      console.log("Resources section in view");
+    if (isInitialLoad) {
+      const timer = setTimeout(() => {
+        setIsInitialLoad(false);
+        setIsLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
     }
-  }, [isInView, isLoading]);
+  }, [selectedCategory, debouncedSearchQuery, isInitialLoad]);
 
+  // Generate skeleton items based on view mode
   const skeletons = useMemo(() => (
     Array(6).fill(0).map((_, i) => (
-      <ResourceSkeleton key={`skeleton-${i}`} />
+      <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
     ))
-  ), []);
+  ), [viewMode]);
 
   return (
-    <div 
+    <section 
       id="resources" 
       ref={resourcesRef}
       className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative"
@@ -68,7 +73,7 @@ export const Resources = memo(() => {
           {isLoading ? "Loading Resources..." : "Available Resources"}
         </motion.h2>
         
-        {!isLoading && (
+        {!isInitialLoad && (
           <>
             <motion.p 
               initial={{ opacity: 0 }}
@@ -96,9 +101,15 @@ export const Resources = memo(() => {
           transition={{ duration: 0.3 }}
         >
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {skeletons}
-            </div>
+            viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {skeletons}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {skeletons}
+              </div>
+            )
           ) : (
             filteredResources.length > 0 ? (
               <ResourceList resources={filteredResources} viewMode={viewMode} />
@@ -122,7 +133,7 @@ export const Resources = memo(() => {
           )}
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 });
 

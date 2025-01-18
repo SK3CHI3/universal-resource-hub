@@ -16,36 +16,36 @@ export const Resources = memo(() => {
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isLoading, setIsLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const resourcesRef = useRef(null);
-  const isInView = useInView(resourcesRef, { amount: 0.1, once: false });
+  const isInView = useInView(resourcesRef, { amount: 0.1, once: true });
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
   
-  // Memoize filtered resources
+  // Memoize filtered resources to prevent unnecessary recalculations
   const filteredResources = useMemo(() => {
-    console.log("Filtering resources with query:", debouncedSearchQuery);
     return getFilteredResources();
   }, [getFilteredResources, selectedCategory, debouncedSearchQuery]);
 
-  // Handle initial load and subsequent filter changes
+  // Handle initial load
   useEffect(() => {
-    if (isInitialLoad) {
-      const timer = setTimeout(() => {
-        setIsInitialLoad(false);
-        setIsLoading(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle filter changes
+  useEffect(() => {
+    if (!isLoading) {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [selectedCategory, debouncedSearchQuery, isInitialLoad]);
+  }, [selectedCategory, debouncedSearchQuery]);
 
   // Generate skeleton items based on view mode
   const skeletons = useMemo(() => (
@@ -58,46 +58,42 @@ export const Resources = memo(() => {
     <section 
       id="resources" 
       ref={resourcesRef}
-      className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen relative"
+      className="py-16 px-4 bg-gray-50 dark:bg-gray-900/50 min-h-screen"
     >
       <motion.div 
         style={{ y }}
         className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none"
       />
-      <div className="max-w-6xl mx-auto relative">
+      <div className="max-w-6xl mx-auto">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-3xl font-bold text-center mb-4"
         >
-          {isLoading ? "Loading Resources..." : "Available Resources"}
+          Available Resources
         </motion.h2>
         
-        {!isInitialLoad && (
-          <>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
-            >
-              {selectedCategory 
-                ? `Showing resources in ${selectedCategory}`
-                : 'Showing all available resources'}
-              {searchQuery && ` matching "${searchQuery}"`}
-            </motion.p>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
+        >
+          {selectedCategory 
+            ? `Showing resources in ${selectedCategory}`
+            : 'Showing all available resources'}
+          {searchQuery && ` matching "${searchQuery}"`}
+        </motion.p>
 
-            <div className="space-y-6 mb-8">
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <ResourceFilters />
-              </div>
-              <ResourceControls />
-            </div>
-          </>
-        )}
+        <div className="space-y-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <ResourceFilters />
+          </div>
+          <ResourceControls />
+        </div>
 
         <motion.div 
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: isInView ? 1 : 0 }}
           transition={{ duration: 0.3 }}
         >
           {isLoading ? (
@@ -110,26 +106,24 @@ export const Resources = memo(() => {
                 {skeletons}
               </div>
             )
+          ) : filteredResources.length > 0 ? (
+            <ResourceList resources={filteredResources} viewMode={viewMode} />
           ) : (
-            filteredResources.length > 0 ? (
-              <ResourceList resources={filteredResources} viewMode={viewMode} />
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-16"
-              >
-                <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
-                <h2 className="text-2xl font-bold mb-2">No resources found</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {searchQuery
-                    ? `No resources found matching "${searchQuery}"`
-                    : selectedCategory
-                    ? `No resources found in ${selectedCategory}`
-                    : 'No resources available'}
-                </p>
-              </motion.div>
-            )
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+              <h2 className="text-2xl font-bold mb-2">No resources found</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                {searchQuery
+                  ? `No resources found matching "${searchQuery}"`
+                  : selectedCategory
+                  ? `No resources found in ${selectedCategory}`
+                  : 'No resources available'}
+              </p>
+            </motion.div>
           )}
         </motion.div>
       </div>

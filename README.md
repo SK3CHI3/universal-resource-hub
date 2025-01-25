@@ -57,3 +57,5 @@ Discover free educational resources today!
 #There is A problem With loading resources And My AI Usage Came to it's Limit I'LL continue Next MOnth from Feb.
 #But its maaaad!
 #It's 25th Jan stil waiting For 5 more days to Continue with this project!
+There are several issues with the project:
+1) There is a problem with loading of resources and rendering.

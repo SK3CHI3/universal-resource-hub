@@ -60,3 +60,4 @@ Discover free educational resources today!
 There are several issues with the project:
 1) There is a problem with loading of resources and rendering.
 2) There is also a problem with scrapping of resources from the free website and automatic posting.
+I'll solve them once the monthly token is updated!

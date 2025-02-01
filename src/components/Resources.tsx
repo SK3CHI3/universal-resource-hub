@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useState, useCallback } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -12,20 +12,36 @@ export const Resources = memo(() => {
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
-  // Handle initial load and filter changes
+  // Handle initial load
   useEffect(() => {
-    setIsLoading(true);
     const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, searchQuery || selectedCategory ? 300 : 1000);
+      setIsInitialLoading(false);
+    }, 1000);
     return () => clearTimeout(timer);
-  }, [selectedCategory, debouncedSearchQuery]);
+  }, []);
+
+  // Handle search and filter changes
+  useEffect(() => {
+    if (!isInitialLoading && (searchQuery || selectedCategory)) {
+      setIsSearching(true);
+      const timer = setTimeout(() => {
+        setIsSearching(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedCategory, debouncedSearchQuery, isInitialLoading]);
 
   // Get filtered resources
-  const filteredResources = getFilteredResources();
+  const filteredResources = useCallback(() => {
+    return getFilteredResources();
+  }, [getFilteredResources]);
+
+  const resources = filteredResources();
+  const isLoading = isInitialLoading || isSearching;
 
   // Generate skeleton items
   const skeletons = Array(6).fill(0).map((_, i) => (
@@ -33,10 +49,7 @@ export const Resources = memo(() => {
   ));
 
   return (
-    <section 
-      id="resources" 
-      className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background"
-    >
+    <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-4">
           Available Resources
@@ -66,8 +79,8 @@ export const Resources = memo(() => {
               {skeletons}
             </div>
           )
-        ) : filteredResources.length > 0 ? (
-          <ResourceList resources={filteredResources} viewMode={viewMode} />
+        ) : resources.length > 0 ? (
+          <ResourceList resources={resources} viewMode={viewMode} />
         ) : (
           <div className="text-center py-16">
             <Search className="w-16 h-16 mx-auto mb-6 text-gray-400" />

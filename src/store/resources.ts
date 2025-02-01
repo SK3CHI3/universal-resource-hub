@@ -9,11 +9,13 @@ interface ResourceStore {
   sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks';
   sortDirection: 'asc' | 'desc';
   viewMode: 'grid' | 'list';
+  isLoading: boolean;  // Added this property
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string | null) => void;
   setSortBy: (sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks') => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   setViewMode: (mode: 'grid' | 'list') => void;
+  setIsLoading: (loading: boolean) => void;  // Added this method
   addResource: (resource: Resource) => void;
   removeResource: (id: string) => void;
   getFilteredResources: () => Resource[];
@@ -26,6 +28,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   sortBy: 'dateAdded',
   sortDirection: 'desc',
   viewMode: 'grid',
+  isLoading: true,  // Added initial state
   
   setSearchQuery: (query) => {
     console.log('Search query being set:', query);
@@ -43,6 +46,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   setSortBy: (sortBy) => set({ sortBy }),
   setSortDirection: (sortDirection) => set({ sortDirection }),
   setViewMode: (viewMode) => set({ viewMode }),
+  setIsLoading: (loading) => set({ isLoading: loading }),  // Added this method
   
   addResource: (resource) => set((state) => ({
     resources: [...state.resources, resource]
@@ -74,7 +78,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .toLowerCase();
         
         // Check if the searchable text includes the search query
-        const matches = searchableText.includes(state.searchQuery);
+        const matches = searchableText.includes(state.searchQuery.toLowerCase());
         console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
         return matches;
       });

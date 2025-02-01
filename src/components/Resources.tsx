@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useCallback } from "react";
+import { memo, useEffect, useState, useMemo } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -6,6 +6,7 @@ import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -14,39 +15,39 @@ export const Resources = memo(() => {
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Increased debounce time
   
-  // Handle initial load
+  // Handle initial load with a longer delay to prevent flashing
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoading(false);
-    }, 1000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle search and filter changes
+  // Memoize filtered resources to prevent unnecessary recalculations
+  const resources = useMemo(() => {
+    return getFilteredResources();
+  }, [getFilteredResources, debouncedSearchQuery, selectedCategory]);
+
+  // Handle search and filter changes with optimized loading states
   useEffect(() => {
     if (!isInitialLoading && (searchQuery || selectedCategory)) {
       setIsSearching(true);
       const timer = setTimeout(() => {
         setIsSearching(false);
-      }, 300);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [selectedCategory, debouncedSearchQuery, isInitialLoading]);
 
-  // Get filtered resources
-  const filteredResources = useCallback(() => {
-    return getFilteredResources();
-  }, [getFilteredResources]);
-
-  const resources = filteredResources();
   const isLoading = isInitialLoading || isSearching;
 
-  // Generate skeleton items
-  const skeletons = Array(6).fill(0).map((_, i) => (
-    <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
-  ));
+  // Generate skeleton items with proper key
+  const skeletons = useMemo(() => 
+    Array(6).fill(0).map((_, i) => (
+      <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
+    )), [viewMode]);
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
@@ -70,15 +71,11 @@ export const Resources = memo(() => {
         </div>
 
         {isLoading ? (
-          viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {skeletons}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {skeletons}
-            </div>
-          )
+          <div className={viewMode === 'grid' 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            : "flex flex-col gap-4"}>
+            {skeletons}
+          </div>
         ) : resources.length > 0 ? (
           <ResourceList resources={resources} viewMode={viewMode} />
         ) : (

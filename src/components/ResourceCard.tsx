@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
 
-export const ResourceCard = ({ 
+export const ResourceCard = memo(({ 
   id,
   title, 
   description, 
@@ -29,7 +30,8 @@ export const ResourceCard = ({
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <img 
             src={imageUrl} 
-            alt={title} 
+            alt={title}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>
@@ -44,7 +46,9 @@ export const ResourceCard = ({
           <span className="text-sm">{rating}</span>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">Source: {source}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Added: {new Date(dateAdded).toLocaleDateString()}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Added: {new Date(dateAdded).toLocaleDateString()}
+        </p>
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4">
         <div className="flex flex-wrap gap-2">
@@ -61,4 +65,6 @@ export const ResourceCard = ({
       </CardFooter>
     </Card>
   );
-};
+});
+
+ResourceCard.displayName = "ResourceCard";

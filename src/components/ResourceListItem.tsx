@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
 
-export const ResourceListItem = ({ 
+export const ResourceListItem = memo(({ 
   id,
   title, 
   description, 
@@ -33,7 +34,9 @@ export const ResourceListItem = ({
               <span className="text-sm ml-1">{rating}</span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{description}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
+            {description}
+          </p>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
@@ -53,4 +56,6 @@ export const ResourceListItem = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+ResourceListItem.displayName = "ResourceListItem";

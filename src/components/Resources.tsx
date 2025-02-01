@@ -6,7 +6,6 @@ import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
 import { Search } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -15,35 +14,36 @@ export const Resources = memo(() => {
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Increased debounce time
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
-  // Handle initial load with a longer delay to prevent flashing
+  // Handle initial load
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoading(false);
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Memoize filtered resources to prevent unnecessary recalculations
+  // Memoize filtered resources
   const resources = useMemo(() => {
+    console.log('Filtering resources with query:', debouncedSearchQuery);
     return getFilteredResources();
   }, [getFilteredResources, debouncedSearchQuery, selectedCategory]);
 
-  // Handle search and filter changes with optimized loading states
+  // Handle search state
   useEffect(() => {
     if (!isInitialLoading && (searchQuery || selectedCategory)) {
       setIsSearching(true);
       const timer = setTimeout(() => {
         setIsSearching(false);
-      }, 500);
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [selectedCategory, debouncedSearchQuery, isInitialLoading]);
 
   const isLoading = isInitialLoading || isSearching;
 
-  // Generate skeleton items with proper key
+  // Memoize skeleton items
   const skeletons = useMemo(() => 
     Array(6).fill(0).map((_, i) => (
       <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
@@ -51,7 +51,7 @@ export const Resources = memo(() => {
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-4">
           Available Resources
         </h2>

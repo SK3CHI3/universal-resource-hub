@@ -27,20 +27,22 @@ export const ResourceCard = memo(({
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow">
       {imageUrl && (
-        <div className="relative pt-[56.25%] overflow-hidden rounded-t-lg">
+        <div className="relative pt-[56.25%] overflow-hidden rounded-t-lg bg-gray-100 dark:bg-gray-800">
           <img 
             src={imageUrl} 
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+            onLoad={(e) => (e.target as HTMLImageElement).classList.add('opacity-100')}
+            style={{ opacity: 0 }}
           />
         </div>
       )}
       <CardHeader>
-        <CardTitle className="line-clamp-2">{title}</CardTitle>
+        <CardTitle className="line-clamp-2 text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{description}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 text-sm">{description}</p>
         <div className="flex items-center space-x-2 mb-2">
           <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
           <span className="text-sm">{rating}</span>
@@ -53,7 +55,7 @@ export const ResourceCard = memo(({
       <CardFooter className="flex flex-col items-start space-y-4">
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Badge key={tag} variant="secondary">
+            <Badge key={tag} variant="secondary" className="text-xs">
               {tag}
             </Badge>
           ))}

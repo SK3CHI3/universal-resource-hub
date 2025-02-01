@@ -8,7 +8,7 @@ interface ResourceSkeletonProps {
 export const ResourceSkeleton = ({ viewMode = 'grid' }: ResourceSkeletonProps) => {
   if (viewMode === 'list') {
     return (
-      <Card className="w-full">
+      <Card className="w-full animate-pulse">
         <CardContent className="flex items-center gap-4 p-4">
           <div className="flex-grow space-y-3">
             <Skeleton className="h-6 w-3/4" />
@@ -29,7 +29,7 @@ export const ResourceSkeleton = ({ viewMode = 'grid' }: ResourceSkeletonProps) =
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="flex flex-col animate-pulse">
       <Skeleton className="h-48 rounded-t-lg" />
       <CardHeader>
         <Skeleton className="h-6 w-3/4" />

@@ -12,12 +12,20 @@ export const Resources = memo(() => {
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
+  const isLoading = useResourceStore((state) => state.isLoading);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
   // Memoize filtered resources
   const resources = useMemo(() => {
     return getFilteredResources();
   }, [getFilteredResources, debouncedSearchQuery, selectedCategory]);
+
+  // Generate loading skeletons
+  const loadingSkeletons = useMemo(() => {
+    return Array(6).fill(null).map((_, index) => (
+      <ResourceSkeleton key={`skeleton-${index}`} viewMode={viewMode} />
+    ));
+  }, [viewMode]);
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
@@ -40,7 +48,15 @@ export const Resources = memo(() => {
           <ResourceControls />
         </div>
 
-        {resources.length > 0 ? (
+        {isLoading ? (
+          <div className={
+            viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "flex flex-col gap-4"
+          }>
+            {loadingSkeletons}
+          </div>
+        ) : resources.length > 0 ? (
           <ResourceList resources={resources} viewMode={viewMode} />
         ) : (
           <div className="text-center py-16">

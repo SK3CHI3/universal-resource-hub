@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -12,42 +12,12 @@ export const Resources = memo(() => {
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [isSearching, setIsSearching] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
-  // Handle initial load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   // Memoize filtered resources
   const resources = useMemo(() => {
-    console.log('Filtering resources with query:', debouncedSearchQuery);
     return getFilteredResources();
   }, [getFilteredResources, debouncedSearchQuery, selectedCategory]);
-
-  // Handle search state
-  useEffect(() => {
-    if (!isInitialLoading && (searchQuery || selectedCategory)) {
-      setIsSearching(true);
-      const timer = setTimeout(() => {
-        setIsSearching(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedCategory, debouncedSearchQuery, isInitialLoading]);
-
-  const isLoading = isInitialLoading || isSearching;
-
-  // Memoize skeleton items
-  const skeletons = useMemo(() => 
-    Array(6).fill(0).map((_, i) => (
-      <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
-    )), [viewMode]);
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
@@ -70,13 +40,7 @@ export const Resources = memo(() => {
           <ResourceControls />
         </div>
 
-        {isLoading ? (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            : "flex flex-col gap-4"}>
-            {skeletons}
-          </div>
-        ) : resources.length > 0 ? (
+        {resources.length > 0 ? (
           <ResourceList resources={resources} viewMode={viewMode} />
         ) : (
           <div className="text-center py-16">

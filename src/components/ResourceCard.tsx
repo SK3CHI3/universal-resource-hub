@@ -25,14 +25,14 @@ export const ResourceCard = memo(({
   };
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
+    <Card className="flex flex-col hover:shadow-lg transition-shadow">
       {imageUrl && (
-        <div className="relative h-48 overflow-hidden rounded-t-lg">
+        <div className="relative pt-[56.25%] overflow-hidden rounded-t-lg">
           <img 
             src={imageUrl} 
             alt={title}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-300"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
       )}

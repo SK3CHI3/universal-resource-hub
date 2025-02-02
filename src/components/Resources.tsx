@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from "react";
+import { memo, useEffect } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -13,22 +13,21 @@ export const Resources = memo(() => {
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
   const isLoading = useResourceStore((state) => state.isLoading);
+  const fetchResources = useResourceStore((state) => state.fetchResources);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
-  // Memoize filtered resources
-  const resources = useMemo(() => {
-    return getFilteredResources();
-  }, [getFilteredResources, debouncedSearchQuery, selectedCategory]);
+  useEffect(() => {
+    fetchResources();
+  }, [fetchResources]);
 
-  // Generate loading skeletons
-  const loadingSkeletons = useMemo(() => {
-    return Array(6).fill(null).map((_, index) => (
-      <ResourceSkeleton key={`skeleton-${index}`} viewMode={viewMode} />
-    ));
-  }, [viewMode]);
+  const resources = getFilteredResources();
+
+  const loadingSkeletons = Array(6).fill(null).map((_, index) => (
+    <ResourceSkeleton key={`skeleton-${index}`} viewMode={viewMode} />
+  ));
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
+    <section className="py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-4">
           Available Resources

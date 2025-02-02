@@ -32,14 +32,8 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   viewMode: 'grid',
   isLoading: true,
   
-  setSearchQuery: (query) => {
-    set({ searchQuery: query });
-  },
-  
-  setSelectedCategory: (category) => {
-    set({ selectedCategory: category });
-  },
-  
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  setSelectedCategory: (category) => set({ selectedCategory: category }),
   setSortBy: (sortBy) => set({ sortBy }),
   setSortDirection: (sortDirection) => set({ sortDirection }),
   setViewMode: (viewMode) => set({ viewMode }),
@@ -56,23 +50,25 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   fetchResources: async () => {
     set({ isLoading: true });
     try {
+      console.log('Fetching resources...');
       const { data, error } = await supabase
         .from('resources')
         .select('*')
         .order('date_added', { ascending: false });
 
       if (error) {
-        console.error('Error fetching resources:', error);
+        console.error('Supabase error:', error);
         toast.error('Failed to load resources. Please try again later.');
-        return;
+        throw error;
       }
 
       if (data) {
+        console.log('Resources fetched successfully:', data.length);
         set({ resources: data });
       }
     } catch (error) {
       console.error('Error fetching resources:', error);
-      toast.error('Failed to load resources. Please try again later.');
+      toast.error('Failed to load resources. Please check your connection and try again.');
     } finally {
       set({ isLoading: false });
     }

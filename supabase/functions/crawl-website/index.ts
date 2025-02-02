@@ -17,12 +17,33 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!apiKey || !supabaseUrl || !supabaseKey) {
-      throw new Error('Required environment variables are missing');
+    if (!apiKey) {
+      console.error('FIRECRAWL_API_KEY is missing');
+      throw new Error('Firecrawl API key is not configured');
+    }
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase configuration is missing');
+      throw new Error('Supabase configuration is missing');
     }
 
     if (!url) {
       throw new Error('URL is required');
+    }
+
+    console.log('Starting crawl with Firecrawl API for URL:', url);
+    const firecrawl = new FirecrawlApp({ apiKey });
+    
+    const crawlResponse = await firecrawl.crawlUrl(url, {
+      limit: 100,
+      scrapeOptions: {
+        formats: ['markdown', 'html'],
+      }
+    });
+
+    if (!crawlResponse.success) {
+      console.error('Crawl failed:', crawlResponse.error);
+      throw new Error(crawlResponse.error || 'Crawl failed');
     }
 
     // Create Supabase client
@@ -41,20 +62,6 @@ Deno.serve(async (req) => {
     if (historyError) {
       console.error('Error creating history record:', historyError);
       throw historyError;
-    }
-
-    console.log('Starting crawl for URL:', url);
-    const firecrawl = new FirecrawlApp({ apiKey });
-    
-    const crawlResponse = await firecrawl.crawlUrl(url, {
-      limit: 100,
-      scrapeOptions: {
-        formats: ['markdown', 'html'],
-      }
-    });
-
-    if (!crawlResponse.success) {
-      throw new Error(crawlResponse.error || 'Crawl failed');
     }
 
     console.log('Processing crawled data');

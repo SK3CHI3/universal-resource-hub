@@ -14,7 +14,7 @@ export const ResourceListItem = memo(({
   tags, 
   link, 
   rating,
-  dateAdded 
+  date_added 
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
@@ -38,7 +38,7 @@ export const ResourceListItem = memo(({
             {description}
           </p>
           <div className="flex flex-wrap gap-2 mb-2">
-            {tags.map((tag) => (
+            {tags?.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -46,7 +46,7 @@ export const ResourceListItem = memo(({
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <span>Source: {source}</span>
-            <span>Added: {new Date(dateAdded).toLocaleDateString()}</span>
+            <span>Added: {new Date(date_added).toLocaleDateString()}</span>
           </div>
         </div>
         <Button onClick={handleClick} className="shrink-0">

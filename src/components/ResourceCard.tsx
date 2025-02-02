@@ -13,9 +13,9 @@ export const ResourceCard = memo(({
   source, 
   tags, 
   link, 
-  imageUrl, 
+  image_url, 
   rating,
-  dateAdded 
+  date_added 
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
@@ -26,10 +26,10 @@ export const ResourceCard = memo(({
 
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow">
-      {imageUrl && (
+      {image_url && (
         <div className="relative pt-[56.25%] overflow-hidden rounded-t-lg bg-gray-100 dark:bg-gray-800">
           <img 
-            src={imageUrl} 
+            src={image_url} 
             alt={title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
@@ -49,12 +49,12 @@ export const ResourceCard = memo(({
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">Source: {source}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Added: {new Date(dateAdded).toLocaleDateString()}
+          Added: {new Date(date_added).toLocaleDateString()}
         </p>
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4">
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
+          {tags?.map((tag) => (
             <Badge key={tag} variant="secondary" className="text-xs">
               {tag}
             </Badge>

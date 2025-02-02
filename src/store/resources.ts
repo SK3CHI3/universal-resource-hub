@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 import { Resource } from '@/types';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface ResourceStore {
   resources: Resource[];
   searchQuery: string;
   selectedCategory: string | null;
-  sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks';
+  sortBy: 'date_added' | 'rating' | 'title' | 'visits' | 'clicks';
   sortDirection: 'asc' | 'desc';
   viewMode: 'grid' | 'list';
   isLoading: boolean;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string | null) => void;
-  setSortBy: (sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks') => void;
+  setSortBy: (sortBy: 'date_added' | 'rating' | 'title' | 'visits' | 'clicks') => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setIsLoading: (loading: boolean) => void;
@@ -26,7 +27,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   resources: [],
   searchQuery: '',
   selectedCategory: null,
-  sortBy: 'dateAdded',
+  sortBy: 'date_added',
   sortDirection: 'desc',
   viewMode: 'grid',
   isLoading: true,
@@ -62,12 +63,16 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
 
       if (error) {
         console.error('Error fetching resources:', error);
+        toast.error('Failed to load resources. Please try again later.');
         return;
       }
 
-      set({ resources: data || [] });
+      if (data) {
+        set({ resources: data });
+      }
     } catch (error) {
       console.error('Error fetching resources:', error);
+      toast.error('Failed to load resources. Please try again later.');
     } finally {
       set({ isLoading: false });
     }
@@ -78,6 +83,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     let filtered = [...state.resources];
     
     if (state.searchQuery) {
+      const query = state.searchQuery.toLowerCase();
       filtered = filtered.filter((resource) => {
         const searchableText = [
           resource.title,
@@ -90,7 +96,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .join(' ')
           .toLowerCase();
         
-        return searchableText.includes(state.searchQuery.toLowerCase());
+        return searchableText.includes(query);
       });
     }
 

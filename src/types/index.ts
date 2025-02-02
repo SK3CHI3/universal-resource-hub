@@ -6,9 +6,9 @@ export interface Resource {
   tags: string[];
   link: string;
   category: string;
-  image_url?: string;
+  imageUrl?: string;
   rating?: number;
-  date_added: string;
+  dateAdded: string;
   visits?: number;
   clicks?: number;
 }

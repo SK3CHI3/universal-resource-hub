@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
 
-export const ResourceListItem = memo(({ 
+export const ResourceListItem = ({ 
   id,
   title, 
   description, 
@@ -14,7 +13,7 @@ export const ResourceListItem = memo(({
   tags, 
   link, 
   rating,
-  date_added 
+  dateAdded 
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
@@ -34,11 +33,9 @@ export const ResourceListItem = memo(({
               <span className="text-sm ml-1">{rating}</span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
-            {description}
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{description}</p>
           <div className="flex flex-wrap gap-2 mb-2">
-            {tags?.map((tag) => (
+            {tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -46,7 +43,7 @@ export const ResourceListItem = memo(({
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <span>Source: {source}</span>
-            <span>Added: {new Date(date_added).toLocaleDateString()}</span>
+            <span>Added: {new Date(dateAdded).toLocaleDateString()}</span>
           </div>
         </div>
         <Button onClick={handleClick} className="shrink-0">
@@ -56,6 +53,4 @@ export const ResourceListItem = memo(({
       </CardContent>
     </Card>
   );
-});
-
-ResourceListItem.displayName = "ResourceListItem";
+};

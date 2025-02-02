@@ -1,6 +1,7 @@
 import { Resource } from '@/types';
 
 export const resources: Resource[] = [
+  // Technology Resources
   {
     id: '1',
     title: 'freeCodeCamp - Full Stack Development',
@@ -9,9 +10,9 @@ export const resources: Resource[] = [
     tags: ['Programming', 'Web Development', 'Full Stack'],
     link: 'https://www.freecodecamp.org/',
     category: 'Technology',
-    image_url: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
+    imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
     rating: 4.9,
-    date_added: '2024-02-20',
+    dateAdded: '2024-02-20',
   },
   {
     id: '2',
@@ -21,9 +22,9 @@ export const resources: Resource[] = [
     tags: ['Web Development', 'JavaScript', 'Ruby'],
     link: 'https://www.theodinproject.com/',
     category: 'Technology',
-    image_url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+    imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
     rating: 4.8,
-    date_added: '2024-02-19',
+    dateAdded: '2024-02-19',
   },
   {
     id: '3',
@@ -33,10 +34,11 @@ export const resources: Resource[] = [
     tags: ['Documentation', 'Web Development', 'Reference'],
     link: 'https://developer.mozilla.org/',
     category: 'Technology',
-    image_url: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
+    imageUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
     rating: 4.9,
-    date_added: '2024-02-18',
+    dateAdded: '2024-02-18',
   },
+  // Design Resources
   {
     id: '4',
     title: 'Figma Community Resources',
@@ -45,9 +47,9 @@ export const resources: Resource[] = [
     tags: ['UI/UX', 'Design Systems', 'Templates'],
     link: 'https://www.figma.com/community',
     category: 'Design',
-    image_url: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+    imageUrl: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
     rating: 4.7,
-    date_added: '2024-02-17',
+    dateAdded: '2024-02-17',
   },
   {
     id: '5',
@@ -57,10 +59,11 @@ export const resources: Resource[] = [
     tags: ['Design Inspiration', 'UI/UX', 'Graphics'],
     link: 'https://dribbble.com/',
     category: 'Design',
-    image_url: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9',
+    imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9',
     rating: 4.6,
-    date_added: '2024-02-16',
+    dateAdded: '2024-02-16',
   },
+  // Business Resources
   {
     id: '6',
     title: 'SCORE Business Templates',
@@ -69,9 +72,9 @@ export const resources: Resource[] = [
     tags: ['Business Planning', 'Templates', 'Finance'],
     link: 'https://www.score.org/resource/business-plan-template-startups',
     category: 'Business',
-    image_url: 'https://images.unsplash.com/photo-1483058712412-4245e9b90334',
+    imageUrl: 'https://images.unsplash.com/photo-1483058712412-4245e9b90334',
     rating: 4.5,
-    date_added: '2024-02-15',
+    dateAdded: '2024-02-15',
   },
   {
     id: '7',
@@ -81,10 +84,11 @@ export const resources: Resource[] = [
     tags: ['Digital Marketing', 'Business', 'Certification'],
     link: 'https://learndigital.withgoogle.com/digitalgarage',
     category: 'Business',
-    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
     rating: 4.8,
-    date_added: '2024-02-14',
+    dateAdded: '2024-02-14',
   },
+  // Education Resources
   {
     id: '8',
     title: 'Khan Academy',
@@ -93,9 +97,9 @@ export const resources: Resource[] = [
     tags: ['Mathematics', 'Science', 'Learning'],
     link: 'https://www.khanacademy.org/',
     category: 'Education',
-    image_url: 'https://images.unsplash.com/photo-1517022812141-23620dba5c23',
+    imageUrl: 'https://images.unsplash.com/photo-1517022812141-23620dba5c23',
     rating: 4.9,
-    date_added: '2024-02-13',
+    dateAdded: '2024-02-13',
   },
   {
     id: '9',
@@ -105,10 +109,11 @@ export const resources: Resource[] = [
     tags: ['Online Courses', 'University', 'Professional Development'],
     link: 'https://www.coursera.org/courses?query=free',
     category: 'Education',
-    image_url: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8',
+    imageUrl: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8',
     rating: 4.7,
-    date_added: '2024-02-12',
+    dateAdded: '2024-02-12',
   },
+  // Books Resources
   {
     id: '10',
     title: 'Project Gutenberg',
@@ -118,7 +123,7 @@ export const resources: Resource[] = [
     link: 'https://www.gutenberg.org/',
     category: 'Books',
     rating: 4.7,
-    date_added: '2024-02-11',
+    dateAdded: '2024-02-11',
   },
   {
     id: '11',
@@ -128,10 +133,11 @@ export const resources: Resource[] = [
     tags: ['eBooks', 'Digital Library', 'Education'],
     link: 'https://openlibrary.org/',
     category: 'Books',
-    image_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570',
+    imageUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570',
     rating: 4.6,
-    date_added: '2024-02-10',
+    dateAdded: '2024-02-10',
   },
+  // Music Resources
   {
     id: '12',
     title: 'Teoria - Music Theory',
@@ -140,9 +146,9 @@ export const resources: Resource[] = [
     tags: ['Music Theory', 'Exercises', 'Education'],
     link: 'https://www.teoria.com/',
     category: 'Music',
-    image_url: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d',
+    imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d',
     rating: 4.5,
-    date_added: '2024-02-09',
+    dateAdded: '2024-02-09',
   },
   {
     id: '13',
@@ -152,10 +158,11 @@ export const resources: Resource[] = [
     tags: ['Sheet Music', 'Composition', 'Music Tools'],
     link: 'https://musescore.org/',
     category: 'Music',
-    image_url: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76',
+    imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76',
     rating: 4.7,
-    date_added: '2024-02-08',
+    dateAdded: '2024-02-08',
   },
+  // Additional Resources
   {
     id: '14',
     title: 'Python Data Science Handbook',
@@ -164,9 +171,9 @@ export const resources: Resource[] = [
     tags: ['Python', 'Data Science', 'Programming'],
     link: 'https://jakevdp.github.io/PythonDataScienceHandbook/',
     category: 'Technology',
-    image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+    imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
     rating: 4.8,
-    date_added: '2024-02-07',
+    dateAdded: '2024-02-07',
   },
   {
     id: '15',
@@ -176,9 +183,9 @@ export const resources: Resource[] = [
     tags: ['Design', 'Color Theory', 'Tools'],
     link: 'https://color.adobe.com/',
     category: 'Design',
-    image_url: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634',
+    imageUrl: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634',
     rating: 4.7,
-    date_added: '2024-02-06',
+    dateAdded: '2024-02-06',
   },
   {
     id: '16',
@@ -188,9 +195,9 @@ export const resources: Resource[] = [
     tags: ['Business Planning', 'Entrepreneurship', 'Resources'],
     link: 'https://www.sba.gov/business-guide',
     category: 'Business',
-    image_url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
+    imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
     rating: 4.6,
-    date_added: '2024-02-05',
+    dateAdded: '2024-02-05',
   },
   {
     id: '17',
@@ -200,9 +207,9 @@ export const resources: Resource[] = [
     tags: ['Education', 'University', 'Learning'],
     link: 'https://ocw.mit.edu/',
     category: 'Education',
-    image_url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173',
+    imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173',
     rating: 4.9,
-    date_added: '2024-02-04',
+    dateAdded: '2024-02-04',
   },
   {
     id: '18',
@@ -212,9 +219,9 @@ export const resources: Resource[] = [
     tags: ['Books', 'Education', 'Digital Library'],
     link: 'https://archive.org/details/texts',
     category: 'Books',
-    image_url: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f',
+    imageUrl: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f',
     rating: 4.7,
-    date_added: '2024-02-03',
+    dateAdded: '2024-02-03',
   },
   {
     id: '19',
@@ -224,8 +231,8 @@ export const resources: Resource[] = [
     tags: ['Music Theory', 'Education', 'Interactive'],
     link: 'https://www.musictheory.net/',
     category: 'Music',
-    image_url: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76',
+    imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76',
     rating: 4.8,
-    date_added: '2024-02-02',
+    dateAdded: '2024-02-02',
   }
 ];

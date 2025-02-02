@@ -1,4 +1,6 @@
 import { Resource } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface ResourceTableProps {
   resources: Resource[];
@@ -18,46 +18,46 @@ interface ResourceTableProps {
 
 export const ResourceTable = ({ resources, onEdit, onDelete }: ResourceTableProps) => {
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Rating</TableHead>
-            <TableHead>Added</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {resources.map((resource) => (
-            <TableRow key={resource.id}>
-              <TableCell className="font-medium">{resource.title}</TableCell>
-              <TableCell>
-                <Badge variant="secondary">{resource.category}</Badge>
-              </TableCell>
-              <TableCell>{resource.rating || 'N/A'}</TableCell>
-              <TableCell>{new Date(resource.date_added).toLocaleDateString()}</TableCell>
-              <TableCell className="space-x-2">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Title</TableHead>
+          <TableHead>Category</TableHead>
+          <TableHead>Source</TableHead>
+          <TableHead>Date Added</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {resources.map((resource) => (
+          <TableRow key={resource.id}>
+            <TableCell>{resource.title}</TableCell>
+            <TableCell>{resource.category}</TableCell>
+            <TableCell>{resource.source}</TableCell>
+            <TableCell>
+              {new Date(resource.dateAdded).toLocaleDateString()}
+            </TableCell>
+            <TableCell>
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="icon"
                   onClick={() => onEdit(resource)}
                 >
-                  Edit
+                  <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="destructive"
-                  size="sm"
+                  size="icon"
                   onClick={() => onDelete(resource.id)}
                 >
-                  Delete
+                  <Trash2 className="h-4 w-4" />
                 </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };

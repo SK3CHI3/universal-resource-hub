@@ -1,43 +1,48 @@
 import { create } from 'zustand';
 import { Resource } from '@/types';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { resources as initialResources } from './resourcesData';
 
 interface ResourceStore {
   resources: Resource[];
   searchQuery: string;
   selectedCategory: string | null;
-  sortBy: 'date_added' | 'rating' | 'title' | 'visits' | 'clicks';
+  sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks';
   sortDirection: 'asc' | 'desc';
   viewMode: 'grid' | 'list';
-  isLoading: boolean;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string | null) => void;
-  setSortBy: (sortBy: 'date_added' | 'rating' | 'title' | 'visits' | 'clicks') => void;
+  setSortBy: (sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks') => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   setViewMode: (mode: 'grid' | 'list') => void;
-  setIsLoading: (loading: boolean) => void;
   addResource: (resource: Resource) => void;
   removeResource: (id: string) => void;
   getFilteredResources: () => Resource[];
-  fetchResources: () => Promise<void>;
 }
 
 export const useResourceStore = create<ResourceStore>((set, get) => ({
-  resources: [],
+  resources: initialResources,
   searchQuery: '',
   selectedCategory: null,
-  sortBy: 'date_added',
+  sortBy: 'dateAdded',
   sortDirection: 'desc',
   viewMode: 'grid',
-  isLoading: true,
   
-  setSearchQuery: (query) => set({ searchQuery: query }),
-  setSelectedCategory: (category) => set({ selectedCategory: category }),
+  setSearchQuery: (query) => {
+    console.log('Search query being set:', query);
+    set({ searchQuery: query });
+  },
+  
+  setSelectedCategory: (category) => {
+    set({ selectedCategory: category });
+    const resourcesSection = document.getElementById('resources');
+    if (resourcesSection) {
+      resourcesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  },
+  
   setSortBy: (sortBy) => set({ sortBy }),
   setSortDirection: (sortDirection) => set({ sortDirection }),
   setViewMode: (viewMode) => set({ viewMode }),
-  setIsLoading: (loading) => set({ isLoading: loading }),
   
   addResource: (resource) => set((state) => ({
     resources: [...state.resources, resource]
@@ -46,41 +51,17 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   removeResource: (id) => set((state) => ({
     resources: state.resources.filter((resource) => resource.id !== id)
   })),
-
-  fetchResources: async () => {
-    set({ isLoading: true });
-    try {
-      console.log('Fetching resources...');
-      const { data, error } = await supabase
-        .from('resources')
-        .select('*')
-        .order('date_added', { ascending: false });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        toast.error('Failed to load resources. Please try again later.');
-        throw error;
-      }
-
-      if (data) {
-        console.log('Resources fetched successfully:', data.length);
-        set({ resources: data });
-      }
-    } catch (error) {
-      console.error('Error fetching resources:', error);
-      toast.error('Failed to load resources. Please check your connection and try again.');
-    } finally {
-      set({ isLoading: false });
-    }
-  },
   
   getFilteredResources: () => {
     const state = get();
     let filtered = [...state.resources];
     
+    // Apply search filter if there's a non-empty search query
     if (state.searchQuery) {
-      const query = state.searchQuery.toLowerCase();
+      console.log('Filtering with search query:', state.searchQuery);
+      
       filtered = filtered.filter((resource) => {
+        // Create a searchable string from all relevant resource fields
         const searchableText = [
           resource.title,
           resource.description,
@@ -92,16 +73,23 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .join(' ')
           .toLowerCase();
         
-        return searchableText.includes(query);
+        // Check if the searchable text includes the search query
+        const matches = searchableText.includes(state.searchQuery);
+        console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
+        return matches;
       });
+      
+      console.log(`Found ${filtered.length} matching resources`);
     }
 
+    // Apply category filter if selected
     if (state.selectedCategory) {
       filtered = filtered.filter(
         resource => resource.category === state.selectedCategory
       );
     }
 
+    // Apply sorting
     return filtered.sort((a, b) => {
       const aValue = a[state.sortBy];
       const bValue = b[state.sortBy];

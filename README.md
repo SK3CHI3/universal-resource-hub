@@ -54,17 +54,3 @@ Key Features
 Visit Us
 For more information and to start exploring, visit our website: https://universal-resource-hub.netlify.app/
 Discover free educational resources today!
-#There is A problem With loading resources And My AI Usage Came to it's Limit I'LL continue Next MOnth from Feb.
-#But its maaaad!
-#It's 25th Jan stil waiting For 5 more days to Continue with this project!
-There are several issues with the project:
-1) There is a problem with loading of resources and rendering.
-2) There is also a problem with scrapping of resources from the free website and automatic posting.
-I'll solve them once the monthly token is updated!
-
-
-Its only 2 days remaiinig to the end of the month so that i can Continue witth the project!
-
-
-'30th Jan'
-31st 23:59 Lets do this

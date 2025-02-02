@@ -2,13 +2,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface ResourceSkeletonProps {
-  viewMode?: 'grid' | 'list';
+  viewMode?: 'grid' | 'list'
 }
 
 export const ResourceSkeleton = ({ viewMode = 'grid' }: ResourceSkeletonProps) => {
   if (viewMode === 'list') {
     return (
-      <Card className="w-full animate-pulse">
+      <Card className="w-full">
         <CardContent className="flex items-center gap-4 p-4">
           <div className="flex-grow space-y-3">
             <Skeleton className="h-6 w-3/4" />
@@ -29,7 +29,7 @@ export const ResourceSkeleton = ({ viewMode = 'grid' }: ResourceSkeletonProps) =
   }
 
   return (
-    <Card className="flex flex-col animate-pulse">
+    <Card className="h-full flex flex-col">
       <Skeleton className="h-48 rounded-t-lg" />
       <CardHeader>
         <Skeleton className="h-6 w-3/4" />

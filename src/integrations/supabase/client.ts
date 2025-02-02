@@ -16,12 +16,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'Content-Type': 'application/json',
+      'apikey': supabaseAnonKey,
     },
   },
 });
-
-// Add error handling for fetch operations
-supabase.handleFetchError = (error: any) => {
-  console.error('Supabase fetch error:', error);
-  throw new Error('Failed to fetch data from Supabase. Please try again later.');
-};

@@ -88,3 +88,4 @@ export const ResourceForm = ({ selectedResource, onSubmit }: ResourceFormProps) 
     </DialogContent>
   );
 };
+

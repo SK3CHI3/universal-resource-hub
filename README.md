@@ -54,4 +54,4 @@ Key Features
 Visit Us
 For more information and to start exploring, visit our website: https://universal-resource-hub.netlify.app/
 Discover free educational resources today!
-Im finally done with my first ever full stack webdsite
+Im finally done with my first ever full stack webdsite!

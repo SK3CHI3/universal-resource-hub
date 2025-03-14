@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 
 export const ResourceCard = memo(({ 
   id,
@@ -20,10 +20,11 @@ export const ResourceCard = memo(({
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
-  const handleClick = () => {
+  // Memoize click handler
+  const handleClick = useCallback(() => {
     trackResourceEvent(id, 'click');
     window.open(link, "_blank");
-  };
+  }, [id, link, trackResourceEvent]);
 
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
@@ -33,6 +34,7 @@ export const ResourceCard = memo(({
             src={imageUrl} 
             alt={title}
             loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>
@@ -51,11 +53,14 @@ export const ResourceCard = memo(({
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4">
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
+          {tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="secondary">
               {tag}
             </Badge>
           ))}
+          {tags.length > 3 && (
+            <Badge variant="outline">+{tags.length - 3}</Badge>
+          )}
         </div>
         <Button className="w-full" onClick={handleClick}>
           Access Now

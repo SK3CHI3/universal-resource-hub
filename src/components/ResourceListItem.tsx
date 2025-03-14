@@ -1,10 +1,12 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { memo } from "react";
+import { memo, useCallback } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const ResourceListItem = memo(({ 
   id,
@@ -18,10 +20,11 @@ export const ResourceListItem = memo(({
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
-  const handleClick = () => {
+  // Memoize click handler to prevent recreating on each render
+  const handleClick = useCallback(() => {
     trackResourceEvent(id, 'click');
     window.open(link, "_blank");
-  };
+  }, [id, link, trackResourceEvent]);
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -34,13 +37,20 @@ export const ResourceListItem = memo(({
               <span className="text-sm ml-1">{rating}</span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{description}</p>
+          <ScrollArea className="h-12 mb-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
+          </ScrollArea>
           <div className="flex flex-wrap gap-2 mb-2">
-            {tags.map((tag) => (
+            {tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
             ))}
+            {tags.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{tags.length - 3} more
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <span>Source: {source}</span>

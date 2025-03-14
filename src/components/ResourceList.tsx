@@ -2,10 +2,11 @@
 import { Resource } from "@/types";
 import { ResourceCard } from "./ResourceCard";
 import { ResourceListItem } from "./ResourceListItem";
-import { memo, useRef, useEffect, useState } from "react";
+import { memo, useRef, useEffect, useState, useCallback } from "react";
 import { FixedSizeList as List, areEqual } from "react-window";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useInView } from "framer-motion";
+import throttle from "lodash.throttle";
 
 interface ResourceListProps {
   resources: Resource[];
@@ -31,20 +32,38 @@ export const ResourceList = memo(({ resources, viewMode, onLoadMore, hasMore }: 
   const listRef = useRef<List>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadMoreVisible = useInView(loadMoreRef, { amount: 0.5 });
+  
+  // Throttled function for resetting the list
+  const throttledResetList = useCallback(
+    throttle(() => {
+      if (listRef.current) {
+        listRef.current.resetAfterIndex(0);
+      }
+    }, 200),
+    [listRef]
+  );
 
-  // Recalculate list when window resizes
+  // Recalculate list when window resizes, using throttling
   useEffect(() => {
-    if (listRef.current) {
-      listRef.current.resetAfterIndex(0);
-    }
-  }, [width]);
+    throttledResetList();
+  }, [width, throttledResetList]);
+
+  // Throttled load more function
+  const throttledLoadMore = useCallback(
+    throttle(() => {
+      if (hasMore) {
+        onLoadMore();
+      }
+    }, 300),
+    [hasMore, onLoadMore]
+  );
 
   // Trigger load more when the load more sentinel is visible
   useEffect(() => {
     if (isLoadMoreVisible && hasMore) {
-      onLoadMore();
+      throttledLoadMore();
     }
-  }, [isLoadMoreVisible, hasMore, onLoadMore]);
+  }, [isLoadMoreVisible, hasMore, throttledLoadMore]);
 
   if (viewMode === 'grid') {
     const columnCount = width < 768 ? 1 : width < 1024 ? 2 : 3;

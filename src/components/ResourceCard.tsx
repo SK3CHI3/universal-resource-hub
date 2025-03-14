@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 
 export const ResourceCard = memo(({ 
   id,
@@ -26,15 +26,41 @@ export const ResourceCard = memo(({
     window.open(link, "_blank");
   }, [id, link, trackResourceEvent]);
 
+  // Convert image URL to WebP if it's not already
+  const optimizedImageUrl = useMemo(() => {
+    if (!imageUrl) return null;
+    
+    // Check if the URL is already a WebP image
+    if (imageUrl.toLowerCase().endsWith('.webp')) {
+      return imageUrl;
+    }
+    
+    // For external URLs that support WebP format conversion
+    if (imageUrl.includes('unsplash.com')) {
+      // Add WebP format to Unsplash URLs
+      return `${imageUrl}&fm=webp&q=80`;
+    }
+    
+    if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('f_webp')) {
+      // Add WebP format to Cloudinary URLs
+      return imageUrl.replace('upload/', 'upload/f_webp,q_auto/');
+    }
+    
+    // For other URLs, we'll assume they don't support dynamic WebP conversion
+    // In a real implementation, you might want to have a server-side conversion process
+    return imageUrl;
+  }, [imageUrl]);
+
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-      {imageUrl && (
+      {optimizedImageUrl && (
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <img 
-            src={imageUrl} 
+            src={optimizedImageUrl} 
             alt={title}
             loading="lazy"
             decoding="async"
+            fetchpriority="auto"
             className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>

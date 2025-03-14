@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const ResourceListItem = memo(({ 

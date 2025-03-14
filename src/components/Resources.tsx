@@ -1,4 +1,3 @@
-
 import { memo, useRef, useState, useCallback } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
@@ -10,6 +9,7 @@ import { useMemo, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
+import throttle from "lodash.throttle";
 
 const ITEMS_PER_BATCH = 9;
 
@@ -62,10 +62,14 @@ export const Resources = memo(() => {
     }
   }, [selectedCategory, debouncedSearchQuery, isInitialLoad]);
 
-  // Handle loading more resources
-  const handleLoadMore = useCallback(() => {
-    setDisplayCount(prev => prev + ITEMS_PER_BATCH);
-  }, []);
+  // Throttled load more handler
+  const handleLoadMore = useCallback(
+    throttle(() => {
+      console.log("Loading more resources...");
+      setDisplayCount(prev => prev + ITEMS_PER_BATCH);
+    }, 500),
+    []
+  );
 
   // Check if there are more items to load
   const hasMore = visibleResources.length < filteredResources.length;

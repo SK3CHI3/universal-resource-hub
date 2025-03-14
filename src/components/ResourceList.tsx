@@ -2,13 +2,16 @@
 import { Resource } from "@/types";
 import { ResourceCard } from "./ResourceCard";
 import { ResourceListItem } from "./ResourceListItem";
-import { memo, useRef, useEffect } from "react";
+import { memo, useRef, useEffect, useState } from "react";
 import { FixedSizeList as List, areEqual } from "react-window";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { useInView } from "framer-motion";
 
 interface ResourceListProps {
   resources: Resource[];
   viewMode: 'grid' | 'list';
+  onLoadMore: () => void;
+  hasMore: boolean;
 }
 
 // Virtualized rendering of list items
@@ -23,9 +26,11 @@ const VirtualizedListItem = memo(({ data, index, style }: any) => {
 
 VirtualizedListItem.displayName = "VirtualizedListItem";
 
-export const ResourceList = memo(({ resources, viewMode }: ResourceListProps) => {
+export const ResourceList = memo(({ resources, viewMode, onLoadMore, hasMore }: ResourceListProps) => {
   const { width, height } = useWindowSize();
   const listRef = useRef<List>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadMoreVisible = useInView(loadMoreRef, { amount: 0.5 });
 
   // Recalculate list when window resizes
   useEffect(() => {
@@ -33,6 +38,13 @@ export const ResourceList = memo(({ resources, viewMode }: ResourceListProps) =>
       listRef.current.resetAfterIndex(0);
     }
   }, [width]);
+
+  // Trigger load more when the load more sentinel is visible
+  useEffect(() => {
+    if (isLoadMoreVisible && hasMore) {
+      onLoadMore();
+    }
+  }, [isLoadMoreVisible, hasMore, onLoadMore]);
 
   if (viewMode === 'grid') {
     const columnCount = width < 768 ? 1 : width < 1024 ? 2 : 3;
@@ -60,21 +72,33 @@ export const ResourceList = memo(({ resources, viewMode }: ResourceListProps) =>
       );
     }
     
-    return <>{gridItems}</>;
+    return (
+      <>
+        {gridItems}
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          {hasMore && <div className="loader w-8 h-8 border-4 border-gray-200 border-t-brand-blue rounded-full animate-spin"></div>}
+        </div>
+      </>
+    );
   }
 
   // For list view, use react-window for virtualization
   return (
-    <List
-      ref={listRef}
-      height={Math.min(600, resources.length * 180)} // Limit height
-      width="100%"
-      itemCount={resources.length}
-      itemSize={180} // Approximate height of each item
-      itemData={{ resources }}
-    >
-      {VirtualizedListItem}
-    </List>
+    <>
+      <List
+        ref={listRef}
+        height={Math.min(800, resources.length * 180)} // Limit height but make it larger
+        width="100%"
+        itemCount={resources.length}
+        itemSize={180} // Approximate height of each item
+        itemData={{ resources }}
+      >
+        {VirtualizedListItem}
+      </List>
+      <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+        {hasMore && <div className="loader w-8 h-8 border-4 border-gray-200 border-t-brand-blue rounded-full animate-spin"></div>}
+      </div>
+    </>
   );
 });
 

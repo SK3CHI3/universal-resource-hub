@@ -1,4 +1,5 @@
-import { memo, useRef, useState } from "react";
+
+import { memo, useRef, useState, useCallback } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
@@ -9,16 +10,8 @@ import { useMemo, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_BATCH = 9;
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
@@ -27,7 +20,7 @@ export const Resources = memo(() => {
   const viewMode = useResourceStore((state) => state.viewMode);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_BATCH);
   
   const resourcesRef = useRef(null);
   const isInView = useInView(resourcesRef, { amount: 0.1, once: false });
@@ -42,16 +35,14 @@ export const Resources = memo(() => {
     return getFilteredResources();
   }, [getFilteredResources, selectedCategory, debouncedSearchQuery]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredResources.length / ITEMS_PER_PAGE);
-  const paginatedResources = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredResources.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredResources, currentPage]);
+  // Calculate visible resources with infinite scroll
+  const visibleResources = useMemo(() => {
+    return filteredResources.slice(0, displayCount);
+  }, [filteredResources, displayCount]);
 
-  // Reset to first page when filters change
+  // Reset to initial count when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    setDisplayCount(ITEMS_PER_BATCH);
   }, [selectedCategory, debouncedSearchQuery]);
 
   // Handle initial load and subsequent filter changes
@@ -71,17 +62,20 @@ export const Resources = memo(() => {
     }
   }, [selectedCategory, debouncedSearchQuery, isInitialLoad]);
 
+  // Handle loading more resources
+  const handleLoadMore = useCallback(() => {
+    setDisplayCount(prev => prev + ITEMS_PER_BATCH);
+  }, []);
+
+  // Check if there are more items to load
+  const hasMore = visibleResources.length < filteredResources.length;
+
   // Generate skeleton items based on view mode
   const skeletons = useMemo(() => (
-    Array(ITEMS_PER_PAGE).fill(0).map((_, i) => (
+    Array(ITEMS_PER_BATCH).fill(0).map((_, i) => (
       <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
     ))
   ), [viewMode]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    resourcesRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <section 
@@ -114,6 +108,8 @@ export const Resources = memo(() => {
                 ? `Showing resources in ${selectedCategory}`
                 : 'Showing all available resources'}
               {searchQuery && ` matching "${searchQuery}"`}
+              {filteredResources.length > 0 && 
+                ` (${visibleResources.length} of ${filteredResources.length})`}
             </motion.p>
 
             <div className="space-y-6 mb-8">
@@ -142,43 +138,13 @@ export const Resources = memo(() => {
             )
           ) : (
             <>
-              {paginatedResources.length > 0 ? (
-                <>
-                  <ResourceList resources={paginatedResources} viewMode={viewMode} />
-                  {totalPages > 1 && (
-                    <div className="mt-8">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious 
-                              onClick={() => handlePageChange(currentPage - 1)}
-                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                            />
-                          </PaginationItem>
-                          
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                onClick={() => handlePageChange(page)}
-                                isActive={currentPage === page}
-                                className="cursor-pointer"
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          ))}
-                          
-                          <PaginationItem>
-                            <PaginationNext 
-                              onClick={() => handlePageChange(currentPage + 1)}
-                              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
-                  )}
-                </>
+              {visibleResources.length > 0 ? (
+                <ResourceList 
+                  resources={visibleResources} 
+                  viewMode={viewMode} 
+                  onLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                />
               ) : (
                 <motion.div 
                   initial={{ opacity: 0 }}

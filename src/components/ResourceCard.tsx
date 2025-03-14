@@ -60,7 +60,7 @@ export const ResourceCard = memo(({
             alt={title}
             loading="lazy"
             decoding="async"
-            fetchpriority="auto"
+            fetchPriority="auto"
             className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>

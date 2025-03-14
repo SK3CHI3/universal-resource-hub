@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
+import { memo } from "react";
 
-export const ResourceListItem = ({ 
+export const ResourceListItem = memo(({ 
   id,
   title, 
   description, 
@@ -53,4 +54,6 @@ export const ResourceListItem = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+ResourceListItem.displayName = "ResourceListItem";

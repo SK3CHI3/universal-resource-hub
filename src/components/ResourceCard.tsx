@@ -1,11 +1,13 @@
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
+import { memo } from "react";
 
-export const ResourceCard = ({ 
+export const ResourceCard = memo(({ 
   id,
   title, 
   description, 
@@ -29,7 +31,8 @@ export const ResourceCard = ({
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <img 
             src={imageUrl} 
-            alt={title} 
+            alt={title}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>
@@ -61,4 +64,6 @@ export const ResourceCard = ({
       </CardFooter>
     </Card>
   );
-};
+});
+
+ResourceCard.displayName = "ResourceCard";

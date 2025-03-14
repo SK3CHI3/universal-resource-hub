@@ -26,11 +26,14 @@ export const ResourceCard = memo(({
     window.open(link, "_blank");
   }, [id, link, trackResourceEvent]);
 
-  // Convert image URL to WebP if it's not already
+  // Prepare the image URL
   const optimizedImageUrl = useMemo(() => {
-    if (!imageUrl) return null;
+    if (!imageUrl) {
+      // Use a placeholder image when no image is provided
+      return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80";
+    }
     
-    // Check if the URL is already a WebP image
+    // If URL is already a WebP image
     if (imageUrl.toLowerCase().endsWith('.webp')) {
       return imageUrl;
     }
@@ -46,25 +49,22 @@ export const ResourceCard = memo(({
       return imageUrl.replace('upload/', 'upload/f_webp,q_auto/');
     }
     
-    // For other URLs, we'll assume they don't support dynamic WebP conversion
-    // In a real implementation, you might want to have a server-side conversion process
+    // For other URLs, use as is
     return imageUrl;
   }, [imageUrl]);
 
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-      {optimizedImageUrl && (
-        <div className="relative h-48 overflow-hidden rounded-t-lg">
-          <img 
-            src={optimizedImageUrl} 
-            alt={title}
-            loading="lazy"
-            decoding="async"
-            fetchPriority="auto"
-            className="w-full h-full object-cover transition-transform duration-300"
-          />
-        </div>
-      )}
+      <div className="relative h-48 overflow-hidden rounded-t-lg">
+        <img 
+          src={optimizedImageUrl} 
+          alt={title || "Resource image"}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="auto"
+          className="w-full h-full object-cover transition-transform duration-300"
+        />
+      </div>
       <CardHeader>
         <CardTitle className="line-clamp-2">{title}</CardTitle>
       </CardHeader>

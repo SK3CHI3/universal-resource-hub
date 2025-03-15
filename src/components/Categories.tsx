@@ -1,4 +1,5 @@
-import { Book, Code, Palette, Briefcase, GraduationCap, Music } from "lucide-react";
+
+import { Book, Code, Palette, Briefcase, GraduationCap, Music, Award } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useResourceStore } from "@/store/resources";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,12 @@ const categories: Category[] = [
     icon: Music, 
     color: "from-pink-500/20 to-pink-600/20 dark:from-pink-500/10 dark:to-pink-600/10",
     description: "Music theory, instruments, and audio resources"
+  },
+  { 
+    name: "Sponsored", 
+    icon: Award, 
+    color: "from-amber-500/20 to-amber-600/20 dark:from-amber-500/10 dark:to-amber-600/10",
+    description: "Free resources provided by our sponsors and partners"
   },
 ];
 

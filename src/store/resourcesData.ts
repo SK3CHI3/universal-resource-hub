@@ -1,6 +1,21 @@
+
 import { Resource } from '@/types';
 
-export const resources: Resource[] = [
+// Helper function to calculate if a resource is outdated (older than 365 days)
+const isOutdated = (dateString: string): boolean => {
+  const resourceDate = new Date(dateString);
+  const currentDate = new Date();
+  const differenceInTime = currentDate.getTime() - resourceDate.getTime();
+  const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+  return differenceInDays > 365;
+};
+
+// Filter out outdated resources
+const filterOutdatedResources = (resources: Resource[]): Resource[] => {
+  return resources.filter(resource => !isOutdated(resource.dateAdded));
+};
+
+const allResources: Resource[] = [
   // Technology Resources
   {
     id: '1',
@@ -234,5 +249,62 @@ export const resources: Resource[] = [
     imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76',
     rating: 4.8,
     dateAdded: '2024-02-02',
+  },
+  
+  // Sponsored Resources
+  {
+    id: '20',
+    title: 'AWS Free Tier',
+    description: 'Free access to AWS services for 12 months to build and learn on the AWS cloud.',
+    source: 'Amazon Web Services',
+    tags: ['Cloud Computing', 'DevOps', 'Infrastructure'],
+    link: 'https://aws.amazon.com/free/',
+    category: 'Sponsored',
+    imageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3',
+    rating: 4.7,
+    dateAdded: '2024-03-01',
+    sponsored: true
+  },
+  {
+    id: '21',
+    title: 'Microsoft Learn',
+    description: 'Free training, documentation, and hands-on labs for Microsoft technologies.',
+    source: 'Microsoft',
+    tags: ['Azure', 'Development', 'Cloud'],
+    link: 'https://learn.microsoft.com/',
+    category: 'Sponsored',
+    imageUrl: 'https://images.unsplash.com/photo-1633419461554-80a33388bb76',
+    rating: 4.6,
+    dateAdded: '2024-03-05',
+    sponsored: true
+  },
+  {
+    id: '22',
+    title: 'Google AI Fundamentals',
+    description: 'Learn the basic concepts of AI and ML with hands-on experience.',
+    source: 'Google',
+    tags: ['AI', 'Machine Learning', 'Data Science'],
+    link: 'https://ai.google/education/',
+    category: 'Sponsored',
+    imageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485',
+    rating: 4.8,
+    dateAdded: '2024-03-10',
+    sponsored: true
+  },
+  {
+    id: '23',
+    title: 'IBM Developer',
+    description: 'Free resources, tutorials, and tools for developers across multiple technologies.',
+    source: 'IBM',
+    tags: ['Cloud', 'AI', 'Blockchain'],
+    link: 'https://developer.ibm.com/',
+    category: 'Sponsored',
+    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31',
+    rating: 4.5,
+    dateAdded: '2024-03-15',
+    sponsored: true
   }
 ];
+
+// Filter out outdated resources
+export const resources: Resource[] = filterOutdatedResources(allResources);

@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Star } from "lucide-react";
+import { ExternalLink, Star, Award } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
 import { memo, useCallback } from "react";
@@ -16,7 +16,8 @@ export const ResourceListItem = memo(({
   tags, 
   link, 
   rating,
-  dateAdded 
+  dateAdded,
+  sponsored
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
 
@@ -36,6 +37,12 @@ export const ResourceListItem = memo(({
               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
               <span className="text-sm ml-1">{rating}</span>
             </div>
+            {sponsored && (
+              <Badge className="bg-amber-500 hover:bg-amber-600 flex items-center gap-1">
+                <Award className="w-3 h-3" />
+                Sponsored
+              </Badge>
+            )}
           </div>
           <ScrollArea className="h-12 mb-2">
             <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>

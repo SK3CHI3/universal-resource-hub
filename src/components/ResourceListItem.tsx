@@ -27,7 +27,7 @@ export const ResourceListItem = memo(({
   }, [id, link, trackResourceEvent]);
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow w-full">
       <CardContent className="flex items-center gap-4 p-4">
         <div className="flex-grow">
           <div className="flex items-center gap-2 mb-1">

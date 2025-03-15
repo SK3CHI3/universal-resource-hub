@@ -29,21 +29,28 @@ export const ResourceCard = memo(({
 
   // Handle image loading errors
   const handleImageError = useCallback(() => {
-    console.log(`Image failed to load: ${imageUrl}`);
     setImageError(true);
-  }, [imageUrl]);
+  }, []);
 
-  // Prepare the image URL
+  // Prepare the image URL with WebP support
   const optimizedImageUrl = useMemo(() => {
     // Return a safe default if there's no image or previous errors
     if (!imageUrl || imageError) {
-      return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80";
+      return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80&fm=webp";
     }
     
-    // For trusted sources that support CORS, use direct links
+    // For trusted sources that support CORS and WebP
+    if (imageUrl.includes('unsplash.com')) {
+      return `${imageUrl.split('?')[0]}?auto=format&fit=crop&w=600&q=80&fm=webp`;
+    }
+    
+    if (imageUrl.includes('cloudinary.com')) {
+      return imageUrl.includes('f_webp') 
+        ? imageUrl 
+        : imageUrl.replace('upload/', 'upload/f_webp,q_auto,w_600/');
+    }
+    
     if (
-      imageUrl.includes('unsplash.com') || 
-      imageUrl.includes('cloudinary.com') || 
       imageUrl.includes('githubusercontent.com') ||
       imageUrl.includes('pexels.com') ||
       imageUrl.startsWith(window.location.origin)
@@ -52,8 +59,7 @@ export const ResourceCard = memo(({
     }
     
     // For other URLs, use a proxy or return placeholder
-    // This helps avoid CORS issues with untrusted sources
-    return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80";
+    return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80&fm=webp";
   }, [imageUrl, imageError]);
 
   return (
@@ -75,11 +81,11 @@ export const ResourceCard = memo(({
           />
         )}
       </div>
-      <CardHeader>
-        <CardTitle className="line-clamp-2">{title}</CardTitle>
+      <CardHeader className="p-4">
+        <CardTitle className="line-clamp-2 text-lg">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{description}</p>
+      <CardContent className="flex-grow p-4 pt-0">
+        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 text-sm">{description}</p>
         <div className="flex items-center space-x-2 mb-2">
           <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
           <span className="text-sm">{rating}</span>
@@ -87,7 +93,7 @@ export const ResourceCard = memo(({
         <p className="text-sm text-gray-500 dark:text-gray-400">Source: {source}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">Added: {new Date(dateAdded).toLocaleDateString()}</p>
       </CardContent>
-      <CardFooter className="flex flex-col items-start space-y-4">
+      <CardFooter className="flex flex-col items-start space-y-4 p-4 pt-0">
         <div className="flex flex-wrap gap-2">
           {tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="secondary">
@@ -99,7 +105,7 @@ export const ResourceCard = memo(({
           )}
         </div>
         <Button className="w-full" onClick={handleClick}>
-          Access Now
+          Access
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>

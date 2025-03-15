@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 
 interface CrawlResult {
@@ -7,11 +8,13 @@ interface CrawlResult {
   total?: number;
   creditsUsed?: number;
   expiresAt?: string;
+  resourcesAdded?: number;
   data?: any[];
+  error?: string;
 }
 
 export class FirecrawlService {
-  static async crawlWebsite(url: string): Promise<{ success: boolean; error?: string; data?: any }> {
+  static async crawlWebsite(url: string): Promise<CrawlResult> {
     try {
       console.log('Making crawl request to Firecrawl API via Edge Function');
       const { data, error } = await supabase.functions.invoke('crawl-website', {
@@ -26,10 +29,18 @@ export class FirecrawlService {
         };
       }
 
-      console.log('Crawl successful:', data);
+      console.log('Crawl response:', data);
+      
+      if (!data.success) {
+        return {
+          success: false,
+          error: data.error || 'Failed to crawl website'
+        };
+      }
+      
       return { 
         success: true,
-        data 
+        ...data.data
       };
     } catch (error) {
       console.error('Error during crawl:', error);

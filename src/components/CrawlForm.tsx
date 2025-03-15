@@ -1,10 +1,11 @@
+
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { supabase } from '@/lib/supabase';
+import { FirecrawlService } from '@/utils/FirecrawlService';
 
 interface CrawlResult {
   success: boolean;
@@ -13,7 +14,8 @@ interface CrawlResult {
   total?: number;
   creditsUsed?: number;
   expiresAt?: string;
-  data?: any[];
+  resourcesAdded?: number;
+  error?: string;
 }
 
 export const CrawlForm = () => {
@@ -26,47 +28,36 @@ export const CrawlForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setProgress(0);
+    setProgress(10);
     setCrawlResult(null);
     
     try {
       console.log('Starting crawl for URL:', url);
-      const { data, error } = await supabase.functions.invoke('crawl-website', {
-        body: { url }
-      });
-
-      if (error) {
-        console.error('Error during crawl:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to crawl website",
-          variant: "destructive",
-          duration: 3000,
+      
+      // Start progress animation
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = prev + 5;
+          return newProgress < 90 ? newProgress : prev;
         });
-        return;
-      }
-
-      if (data.success) {
+      }, 500);
+      
+      const result = await FirecrawlService.crawlWebsite(url);
+      clearInterval(progressInterval);
+      
+      if (result.success) {
+        setProgress(100);
+        setCrawlResult(result);
         toast({
           title: "Success",
-          description: "Website crawled successfully",
+          description: `Website crawled successfully. Added ${result.resourcesAdded} resources.`,
           duration: 3000,
         });
-        setCrawlResult(data);
-        
-        // Simulate progress
-        let currentProgress = 0;
-        const progressInterval = setInterval(() => {
-          currentProgress += 10;
-          setProgress(currentProgress);
-          if (currentProgress >= 100) {
-            clearInterval(progressInterval);
-          }
-        }, 200);
       } else {
+        setProgress(100);
         toast({
           title: "Error",
-          description: data.error || "Failed to crawl website",
+          description: result.error || "Failed to crawl website",
           variant: "destructive",
           duration: 3000,
         });
@@ -114,22 +105,17 @@ export const CrawlForm = () => {
         </Button>
       </form>
 
-      {crawlResult && (
+      {crawlResult && crawlResult.success && (
         <Card className="mt-6 p-4">
           <h3 className="text-lg font-semibold mb-2">Crawl Results</h3>
           <div className="space-y-2 text-sm">
             <p>Status: {crawlResult.status}</p>
-            <p>Completed Pages: {crawlResult.completed}</p>
+            <p>Pages Crawled: {crawlResult.completed}</p>
             <p>Total Pages: {crawlResult.total}</p>
+            <p>Resources Added: {crawlResult.resourcesAdded}</p>
             <p>Credits Used: {crawlResult.creditsUsed}</p>
-            <p>Expires At: {new Date(crawlResult.expiresAt || '').toLocaleString()}</p>
-            {crawlResult.data && (
-              <div className="mt-4">
-                <p className="font-semibold mb-2">Crawled Data:</p>
-                <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-h-60">
-                  {JSON.stringify(crawlResult.data, null, 2)}
-                </pre>
-              </div>
+            {crawlResult.expiresAt && (
+              <p>Expires At: {new Date(crawlResult.expiresAt).toLocaleString()}</p>
             )}
           </div>
         </Card>

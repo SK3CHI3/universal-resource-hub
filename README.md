@@ -11,7 +11,6 @@ Key Features
 - Books (Free ebooks, digital publications)
 - Music (Music theory, instruments)
 
-
 - User Interface
 - Responsive Design: Fully responsive layout suitable for mobile, tablet, and desktop.
 - Modern UI:

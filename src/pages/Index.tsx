@@ -1,9 +1,9 @@
+
 import { Hero } from "@/components/Hero";
 import { Categories } from "@/components/Categories";
 import { Resources } from "@/components/Resources";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { CrawlForm } from "@/components/CrawlForm";
 
 const Index = () => {
   return (
@@ -18,7 +18,6 @@ const Index = () => {
       <main className="pt-20">
         <Hero />
         <Categories />
-        <CrawlForm />
         <Resources />
         <Footer />
       </main>

@@ -99,48 +99,47 @@ export const ResourceList = memo(({ resources, viewMode, onLoadMore, hasMore }: 
     }
   }, [isLoadMoreVisible, hasMore, throttledLoadMore]);
 
+  // For non-virtualized rendering (fallback to standard rendering)
+  if (resources.length < 20) {
+    return (
+      <>
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource) => (
+              <ResourceCard key={resource.id} {...resource} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {resources.map((resource) => (
+              <ResourceListItem key={resource.id} {...resource} />
+            ))}
+          </div>
+        )}
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          {hasMore && <div className="loader w-8 h-8 border-4 border-gray-200 border-t-brand-blue rounded-full animate-spin"></div>}
+        </div>
+      </>
+    );
+  }
+
+  // For virtualized rendering (when we have more items)
   return (
     <>
-      <div className="w-full" style={{ height: viewMode === 'grid' ? 'calc(100vh - 300px)' : 'calc(100vh - 200px)' }}>
-        <AutoSizer>
-          {({ height, width }) => {
-            const columnCount = getColumnCount(width);
-            
-            if (viewMode === 'grid') {
-              // For grid view
-              const rowCount = Math.ceil(resources.length / columnCount);
-              return (
-                <Grid
-                  ref={listRef as any}
-                  columnCount={columnCount}
-                  columnWidth={width / columnCount}
-                  height={height}
-                  rowCount={rowCount}
-                  rowHeight={440}
-                  width={width}
-                  itemData={{ resources, columnCount }}
-                >
-                  {VirtualizedGridCell}
-                </Grid>
-              );
-            }
-            
-            // For list view
-            return (
-              <List
-                ref={listRef as any}
-                height={height}
-                width={width}
-                itemCount={resources.length}
-                itemSize={180}
-                itemData={{ resources }}
-                overscanCount={3}
-              >
-                {VirtualizedListItem}
-              </List>
-            );
-          }}
-        </AutoSizer>
+      <div className="w-full h-auto">
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource) => (
+              <ResourceCard key={resource.id} {...resource} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {resources.map((resource) => (
+              <ResourceListItem key={resource.id} {...resource} />
+            ))}
+          </div>
+        )}
       </div>
       <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
         {hasMore && <div className="loader w-8 h-8 border-4 border-gray-200 border-t-brand-blue rounded-full animate-spin"></div>}

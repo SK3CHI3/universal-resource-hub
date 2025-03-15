@@ -2,10 +2,10 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Star } from "lucide-react";
+import { ExternalLink, Star, Image as ImageIcon } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 export const ResourceCard = memo(({ 
   id,
@@ -19,6 +19,7 @@ export const ResourceCard = memo(({
   dateAdded 
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
+  const [imageError, setImageError] = useState(false);
 
   // Memoize click handler
   const handleClick = useCallback(() => {
@@ -26,44 +27,53 @@ export const ResourceCard = memo(({
     window.open(link, "_blank");
   }, [id, link, trackResourceEvent]);
 
+  // Handle image loading errors
+  const handleImageError = useCallback(() => {
+    console.log(`Image failed to load: ${imageUrl}`);
+    setImageError(true);
+  }, [imageUrl]);
+
   // Prepare the image URL
   const optimizedImageUrl = useMemo(() => {
-    if (!imageUrl) {
-      // Use a placeholder image when no image is provided
+    // Return a safe default if there's no image or previous errors
+    if (!imageUrl || imageError) {
       return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80";
     }
     
-    // If URL is already a WebP image
-    if (imageUrl.toLowerCase().endsWith('.webp')) {
+    // For trusted sources that support CORS, use direct links
+    if (
+      imageUrl.includes('unsplash.com') || 
+      imageUrl.includes('cloudinary.com') || 
+      imageUrl.includes('githubusercontent.com') ||
+      imageUrl.includes('pexels.com') ||
+      imageUrl.startsWith(window.location.origin)
+    ) {
       return imageUrl;
     }
     
-    // For external URLs that support WebP format conversion
-    if (imageUrl.includes('unsplash.com')) {
-      // Add WebP format to Unsplash URLs
-      return `${imageUrl}&fm=webp&q=80`;
-    }
-    
-    if (imageUrl.includes('cloudinary.com') && !imageUrl.includes('f_webp')) {
-      // Add WebP format to Cloudinary URLs
-      return imageUrl.replace('upload/', 'upload/f_webp,q_auto/');
-    }
-    
-    // For other URLs, use as is
-    return imageUrl;
-  }, [imageUrl]);
+    // For other URLs, use a proxy or return placeholder
+    // This helps avoid CORS issues with untrusted sources
+    return "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80";
+  }, [imageUrl, imageError]);
 
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-      <div className="relative h-48 overflow-hidden rounded-t-lg">
-        <img 
-          src={optimizedImageUrl} 
-          alt={title || "Resource image"}
-          loading="lazy"
-          decoding="async"
-          fetchPriority="auto"
-          className="w-full h-full object-cover transition-transform duration-300"
-        />
+      <div className="relative h-48 overflow-hidden rounded-t-lg bg-gray-100 dark:bg-gray-800">
+        {imageError ? (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+            <ImageIcon className="w-12 h-12 text-gray-400" />
+          </div>
+        ) : (
+          <img 
+            src={optimizedImageUrl} 
+            alt={title || "Resource image"}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="auto"
+            onError={handleImageError}
+            className="w-full h-full object-cover transition-transform duration-300"
+          />
+        )}
       </div>
       <CardHeader>
         <CardTitle className="line-clamp-2">{title}</CardTitle>

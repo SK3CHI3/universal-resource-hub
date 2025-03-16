@@ -1,8 +1,13 @@
-import { Book, Code, Palette, Briefcase, GraduationCap, Music } from "lucide-react";
+
+import { Book, Code, Palette, Briefcase, GraduationCap, Music, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useResourceStore } from "@/store/resources";
 import { cn } from "@/lib/utils";
 import { Category } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const categories: Category[] = [
   { 
@@ -36,6 +41,13 @@ const categories: Category[] = [
     description: "Free ebooks, digital publications, and reading materials"
   },
   { 
+    name: "Sponsored", 
+    icon: Sparkles, 
+    color: "from-amber-500/20 to-amber-600/20 dark:from-amber-500/10 dark:to-amber-600/10",
+    description: "Partially or fully funded courses and premium resources",
+    premium: true
+  },
+  { 
     name: "Music", 
     icon: Music, 
     color: "from-pink-500/20 to-pink-600/20 dark:from-pink-500/10 dark:to-pink-600/10",
@@ -45,8 +57,33 @@ const categories: Category[] = [
 
 export const Categories = () => {
   const { selectedCategory, setSelectedCategory } = useResourceStore();
+  const { user, isAuthenticated, isPremium } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleCategoryClick = (categoryName: string) => {
+  const handleCategoryClick = (categoryName: string, isPremiumCategory?: boolean) => {
+    if (isPremiumCategory) {
+      if (!isAuthenticated) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to access premium content",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+      
+      if (!isPremium) {
+        toast({
+          title: "Premium subscription required",
+          description: "Upgrade to access sponsored resources",
+          variant: "destructive",
+        });
+        navigate("/subscription");
+        return;
+      }
+    }
+    
     setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
   };
 
@@ -67,18 +104,35 @@ export const Categories = () => {
               "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]",
               "border border-gray-200 dark:border-gray-700",
               "bg-white dark:bg-gray-800",
-              selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue"
+              selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue",
+              category.name === "Sponsored" && "border-amber-400 dark:border-amber-300",
+              category.name === "Sponsored" && 
+                "animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.7)] dark:shadow-[0_0_15px_rgba(245,158,11,0.5)]"
             )}
-            onClick={() => handleCategoryClick(category.name)}
+            onClick={() => handleCategoryClick(category.name, category.premium)}
           >
+            {category.name === "Sponsored" && (
+              <div className="absolute inset-0 border-2 border-amber-400 dark:border-amber-300 rounded-lg 
+                animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.7)] dark:shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
+            )}
             <div className={`absolute inset-0 bg-gradient-to-br ${category.color} transition-opacity`} />
             <div className="relative z-10">
               <div className="flex items-center space-x-4">
                 <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform">
-                  <category.icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                  <category.icon className={cn(
+                    "w-6 h-6", 
+                    category.name === "Sponsored" 
+                      ? "text-amber-500 dark:text-amber-400" 
+                      : "text-gray-700 dark:text-gray-300"
+                  )} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {category.name}
+                  {category.premium && (
+                    <span className="ml-2 px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100">
+                      Premium
+                    </span>
+                  )}
                 </h3>
               </div>
               <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">

@@ -1,21 +1,24 @@
-
-import { memo, useRef, useState, useCallback } from "react";
+import { memo, useRef, useState, useCallback, useEffect } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
 import { ResourceFilters } from "./ResourceFilters";
 import { ResourceSkeleton } from "./ResourceSkeleton";
 import { useResourceStore } from "@/store/resources";
-import { Search } from "lucide-react";
-import { useMemo, useEffect } from "react";
+import { Search, Lock } from "lucide-react";
+import { useMemo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
 import throttle from "lodash.throttle";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_BATCH = 9;
 
 export const Resources = memo(() => {
   const getFilteredResources = useResourceStore((state) => state.getFilteredResources);
+  const fetchResources = useResourceStore((state) => state.fetchResources);
   const searchQuery = useResourceStore((state) => state.searchQuery);
   const selectedCategory = useResourceStore((state) => state.selectedCategory);
   const viewMode = useResourceStore((state) => state.viewMode);
@@ -26,27 +29,35 @@ export const Resources = memo(() => {
   const resourcesRef = useRef(null);
   const isInView = useInView(resourcesRef, { amount: 0.1, once: false });
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { isAuthenticated, isPremium } = useAuth();
+  const navigate = useNavigate();
   
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
 
-  // Memoize filtered resources
+  useEffect(() => {
+    fetchResources();
+  }, [fetchResources]);
+
   const filteredResources = useMemo(() => {
     console.log("Filtering resources with query:", debouncedSearchQuery);
-    return getFilteredResources();
-  }, [getFilteredResources, selectedCategory, debouncedSearchQuery]);
+    let resources = getFilteredResources();
+    
+    if (selectedCategory === "Sponsored" && !isPremium) {
+      // Keep showing the resources, they'll be locked in the UI
+    }
+    
+    return resources;
+  }, [getFilteredResources, selectedCategory, debouncedSearchQuery, isPremium]);
 
-  // Calculate visible resources with infinite scroll
   const visibleResources = useMemo(() => {
     return filteredResources.slice(0, displayCount);
   }, [filteredResources, displayCount]);
 
-  // Reset to initial count when filters change
   useEffect(() => {
     setDisplayCount(ITEMS_PER_BATCH);
   }, [selectedCategory, debouncedSearchQuery]);
 
-  // Handle initial load and subsequent filter changes
   useEffect(() => {
     if (isInitialLoad) {
       const timer = setTimeout(() => {
@@ -63,7 +74,6 @@ export const Resources = memo(() => {
     }
   }, [selectedCategory, debouncedSearchQuery, isInitialLoad]);
 
-  // Throttled load more handler
   const handleLoadMore = useCallback(
     throttle(() => {
       console.log("Loading more resources...");
@@ -72,15 +82,21 @@ export const Resources = memo(() => {
     []
   );
 
-  // Check if there are more items to load
   const hasMore = visibleResources.length < filteredResources.length;
 
-  // Generate skeleton items based on view mode
   const skeletons = useMemo(() => (
     Array(ITEMS_PER_BATCH).fill(0).map((_, i) => (
       <ResourceSkeleton key={`skeleton-${i}`} viewMode={viewMode} />
     ))
   ), [viewMode]);
+
+  const handleSignIn = () => {
+    navigate('/auth');
+  };
+
+  const handleUpgrade = () => {
+    navigate('/subscription');
+  };
 
   return (
     <section 
@@ -143,7 +159,37 @@ export const Resources = memo(() => {
             )
           ) : (
             <>
-              {visibleResources.length > 0 ? (
+              {selectedCategory === "Sponsored" && !isAuthenticated ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-10 text-center shadow-md border border-amber-200 dark:border-amber-800"
+                >
+                  <Lock className="w-16 h-16 mx-auto mb-6 text-amber-500" />
+                  <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-lg mx-auto">
+                    Please sign in to view sponsored resources. These resources include partially or fully funded courses and premium content.
+                  </p>
+                  <Button onClick={handleSignIn} className="bg-amber-500 hover:bg-amber-600">
+                    Sign In to Continue
+                  </Button>
+                </motion.div>
+              ) : selectedCategory === "Sponsored" && !isPremium ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-10 text-center shadow-md border border-amber-200 dark:border-amber-800"
+                >
+                  <Lock className="w-16 h-16 mx-auto mb-6 text-amber-500" />
+                  <h2 className="text-2xl font-bold mb-2">Premium Subscription Required</h2>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-lg mx-auto">
+                    Upgrade to premium to access sponsored resources. These resources include partially or fully funded courses and premium content.
+                  </p>
+                  <Button onClick={handleUpgrade} className="bg-amber-500 hover:bg-amber-600">
+                    Upgrade to Premium
+                  </Button>
+                </motion.div>
+              ) : visibleResources.length > 0 ? (
                 <ResourceList 
                   resources={visibleResources} 
                   viewMode={viewMode} 

@@ -1,3 +1,4 @@
+
 export interface Resource {
   id: string;
   title: string;
@@ -11,6 +12,7 @@ export interface Resource {
   dateAdded: string;
   visits?: number;
   clicks?: number;
+  is_sponsored?: boolean;
 }
 
 export type Category = {
@@ -18,6 +20,7 @@ export type Category = {
   icon: any;
   color: string;
   description: string;
+  premium?: boolean;
 }
 
 export interface Analytics {

@@ -2,10 +2,14 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Star, Image as ImageIcon } from "lucide-react";
+import { ExternalLink, Star, Image as ImageIcon, Sparkles } from "lucide-react";
 import { Resource } from "@/types";
 import { useResourceTracking } from "@/hooks/useResourceTracking";
 import { memo, useCallback, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ResourceCard = memo(({ 
   id,
@@ -16,16 +20,40 @@ export const ResourceCard = memo(({
   link, 
   imageUrl, 
   rating,
-  dateAdded 
+  dateAdded,
+  is_sponsored
 }: Resource) => {
   const { trackResourceEvent } = useResourceTracking();
   const [imageError, setImageError] = useState(false);
+  const { isAuthenticated, isPremium } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Memoize click handler
   const handleClick = useCallback(() => {
+    if (is_sponsored && !isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to access sponsored content",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+    
+    if (is_sponsored && !isPremium) {
+      toast({
+        title: "Premium subscription required",
+        description: "Upgrade to access sponsored resources",
+        variant: "destructive",
+      });
+      navigate("/subscription");
+      return;
+    }
+    
     trackResourceEvent(id, 'click');
     window.open(link, "_blank");
-  }, [id, link, trackResourceEvent]);
+  }, [id, link, trackResourceEvent, is_sponsored, isAuthenticated, isPremium, navigate, toast]);
 
   // Handle image loading errors
   const handleImageError = useCallback(() => {
@@ -63,7 +91,17 @@ export const ResourceCard = memo(({
   }, [imageUrl, imageError]);
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
+    <Card className={cn(
+      "h-full flex flex-col hover:shadow-lg transition-shadow relative",
+      is_sponsored && "border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]"
+    )}>
+      {is_sponsored && (
+        <div className="absolute right-2 top-2 z-10">
+          <Badge variant="default" className="bg-amber-500 hover:bg-amber-600">
+            <Sparkles className="h-3 w-3 mr-1" /> Sponsored
+          </Badge>
+        </div>
+      )}
       <div className="relative h-48 overflow-hidden rounded-t-lg bg-gray-100 dark:bg-gray-800">
         {imageError ? (
           <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -104,9 +142,24 @@ export const ResourceCard = memo(({
             <Badge variant="outline">+{tags.length - 3}</Badge>
           )}
         </div>
-        <Button className="w-full" onClick={handleClick}>
-          Access
-          <ExternalLink className="ml-2 h-4 w-4" />
+        <Button 
+          className={cn(
+            "w-full", 
+            is_sponsored && !isPremium && "bg-amber-500 hover:bg-amber-600"
+          )} 
+          onClick={handleClick}
+        >
+          {is_sponsored && !isPremium ? (
+            <>
+              Upgrade to Access
+              <Sparkles className="ml-2 h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Access
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>

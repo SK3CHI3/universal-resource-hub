@@ -1,6 +1,8 @@
+
 import { create } from 'zustand';
 import { Resource } from '@/types';
 import { resources as initialResources } from './resourcesData';
+import { supabase } from '@/lib/supabase';
 
 interface ResourceStore {
   resources: Resource[];
@@ -9,11 +11,14 @@ interface ResourceStore {
   sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks';
   sortDirection: 'asc' | 'desc';
   viewMode: 'grid' | 'list';
+  isLoading: boolean;
+  error: Error | null;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string | null) => void;
   setSortBy: (sortBy: 'dateAdded' | 'rating' | 'title' | 'visits' | 'clicks') => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   setViewMode: (mode: 'grid' | 'list') => void;
+  fetchResources: () => Promise<void>;
   addResource: (resource: Resource) => void;
   removeResource: (id: string) => void;
   getFilteredResources: () => Resource[];
@@ -26,6 +31,53 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
   sortBy: 'dateAdded',
   sortDirection: 'desc',
   viewMode: 'grid',
+  isLoading: false,
+  error: null,
+  
+  fetchResources: async () => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      // Try to get resources from Supabase
+      const { data, error } = await supabase
+        .from('resources')
+        .select('*');
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      // If we got data from Supabase, use it, otherwise use initial data
+      if (data && data.length > 0) {
+        // Map the Supabase data to our Resource interface
+        const mappedResources: Resource[] = data.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description || '',
+          source: item.source,
+          tags: item.tags || [],
+          link: item.link,
+          category: item.category,
+          imageUrl: item.image_url,
+          rating: item.rating,
+          dateAdded: item.date_added || new Date().toISOString(),
+          visits: item.visits || 0,
+          clicks: item.clicks || 0,
+          is_sponsored: item.is_sponsored || false
+        }));
+        
+        set({ resources: mappedResources, isLoading: false });
+      } else {
+        // If no data from Supabase, use initial data
+        set({ resources: initialResources, isLoading: false });
+      }
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+      set({ error: error as Error, isLoading: false });
+      // Fallback to initial data
+      set({ resources: initialResources });
+    }
+  },
   
   setSearchQuery: (query) => {
     console.log('Search query being set:', query);
@@ -74,7 +126,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .toLowerCase();
         
         // Check if the searchable text includes the search query
-        const matches = searchableText.includes(state.searchQuery);
+        const matches = searchableText.includes(state.searchQuery.toLowerCase());
         console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
         return matches;
       });

@@ -1,17 +1,31 @@
+
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLinks } from "./navigation/NavLinks";
 import { MobileMenu } from "./navigation/MobileMenu";
 import { Logo } from "./Logo";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, LogIn, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Sparkles } from "lucide-react";
 
 export const Header = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { user, signOut, isAuthenticated, isPremium } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user has a theme preference in localStorage
@@ -56,6 +70,27 @@ export const Header = () => {
     }
   };
 
+  const handleLoginClick = () => {
+    navigate('/auth');
+  };
+
+  const handleProfileClick = () => {
+    // For now just a placeholder, could navigate to a profile page
+    toast({
+      title: "Profile",
+      description: "Profile page coming soon!",
+    });
+  };
+
+  const handleSubscriptionClick = () => {
+    navigate('/subscription');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl backdrop-blur-md bg-white/30 dark:bg-gray-900/30 z-50 rounded-2xl border border-gray-200/30 dark:border-gray-700/30 shadow-lg">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -80,6 +115,52 @@ export const Header = () => {
               <Sun className="h-5 w-5 text-gray-300 hover:text-white" />
             )}
           </Button>
+
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative rounded-full h-10 w-10 p-0">
+                  <UserCircle className="h-6 w-6" />
+                  {isPremium && (
+                    <span className="absolute -top-1 -right-1">
+                      <Sparkles className="h-4 w-4 text-amber-400" />
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSubscriptionClick}>
+                  {isPremium ? (
+                    <span className="flex items-center">
+                      <Sparkles className="mr-2 h-4 w-4 text-amber-400" />
+                      Premium Active
+                    </span>
+                  ) : (
+                    "Upgrade to Premium"
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              variant="default" 
+              onClick={handleLoginClick}
+              className="flex items-center gap-2"
+              size="sm"
+            >
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Button>
+          )}
 
           {isMobile ? (
             <MobileMenu 

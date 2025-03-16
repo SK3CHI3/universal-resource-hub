@@ -20,4 +20,5 @@ export interface Category {
   icon: React.ElementType;
   color: string;
   description: string;
+  featured?: boolean;
 }

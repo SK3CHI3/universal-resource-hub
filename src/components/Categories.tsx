@@ -46,7 +46,8 @@ const categories: Category[] = [
     name: "Sponsored", 
     icon: Award, 
     color: "from-amber-500/20 to-amber-600/20 dark:from-amber-500/10 dark:to-amber-600/10",
-    description: "Free resources provided by our sponsors and partners"
+    description: "Free resources provided by our sponsors and partners",
+    featured: true
   },
 ];
 
@@ -66,34 +67,62 @@ export const Categories = () => {
         Browse through our curated collection of free resources across various categories
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {categories.map((category) => (
-          <Card
-            key={category.name}
-            className={cn(
-              "p-6 transition-all cursor-pointer group relative overflow-hidden",
-              "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]",
-              "border border-gray-200 dark:border-gray-700",
-              "bg-white dark:bg-gray-800",
-              selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue"
-            )}
-            onClick={() => handleCategoryClick(category.name)}
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${category.color} transition-opacity`} />
-            <div className="relative z-10">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform">
-                  <category.icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+        {categories.map((category) => {
+          // Special styling for sponsored category
+          const isSponsored = category.name === "Sponsored";
+          
+          return (
+            <Card
+              key={category.name}
+              className={cn(
+                "p-6 transition-all cursor-pointer group relative overflow-hidden",
+                "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]",
+                "border border-gray-200 dark:border-gray-700",
+                "bg-white dark:bg-gray-800",
+                selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue",
+                // Special styling for sponsored category
+                isSponsored && "shadow-[0_0_15px_rgba(249,115,22,0.6)] dark:shadow-[0_0_20px_rgba(249,115,22,0.5)]",
+                isSponsored && "border-amber-500 animate-pulse"
+              )}
+              onClick={() => handleCategoryClick(category.name)}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} transition-opacity ${isSponsored ? 'opacity-70' : ''}`} />
+              
+              {/* Glow effect for sponsored category */}
+              {isSponsored && (
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 animate-gradient z-0 pointer-events-none"></div>
+              )}
+              
+              <div className="relative z-10">
+                <div className="flex items-center space-x-4">
+                  <div className={cn(
+                    "p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform",
+                    isSponsored && "bg-amber-100 dark:bg-amber-900/60"
+                  )}>
+                    <category.icon className={cn(
+                      "w-6 h-6 text-gray-700 dark:text-gray-300",
+                      isSponsored && "text-amber-600 dark:text-amber-400"
+                    )} />
+                  </div>
+                  <h3 className={cn(
+                    "text-xl font-semibold text-gray-900 dark:text-gray-100",
+                    isSponsored && "text-amber-600 dark:text-amber-400"
+                  )}>
+                    {category.name}
+                    {isSponsored && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">
+                        Featured
+                      </span>
+                    )}
+                  </h3>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {category.name}
-                </h3>
+                <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">
+                  {category.description}
+                </p>
               </div>
-              <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">
-                {category.description}
-              </p>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

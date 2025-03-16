@@ -29,9 +29,13 @@ export const ResourceCard = memo((resource: Resource) => {
       <Card 
         className={cn(
           "h-full flex flex-col overflow-hidden group border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow",
-          sponsored && "border-amber-500 dark:border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+          sponsored && "border-amber-500 dark:border-amber-400 border-2 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
         )}
       >
+        {sponsored && (
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 opacity-20 rounded-lg blur"></div>
+        )}
+        
         <div className="relative">
           {imageUrl ? (
             <div className="h-48 overflow-hidden relative">
@@ -45,7 +49,7 @@ export const ResourceCard = memo((resource: Resource) => {
           ) : (
             <div className={cn(
               "h-48 bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 dark:from-brand-purple/10 dark:to-brand-blue/10",
-              sponsored && "bg-gradient-to-br from-amber-400/40 to-orange-500/40"
+              sponsored && "bg-gradient-to-br from-amber-400/40 to-orange-500/40 animate-gradient"
             )}></div>
           )}
           

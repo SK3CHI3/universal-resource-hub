@@ -37,17 +37,17 @@ const categories: Category[] = [
     description: "Free ebooks, digital publications, and reading materials"
   },
   { 
+    name: "Sponsored", 
+    icon: Award, 
+    color: "from-amber-500/30 to-orange-500/30 dark:from-amber-500/20 dark:to-orange-500/20",
+    description: "Free resources provided by our sponsors and partners",
+    featured: true
+  },
+  { 
     name: "Music", 
     icon: Music, 
     color: "from-pink-500/20 to-pink-600/20 dark:from-pink-500/10 dark:to-pink-600/10",
     description: "Music theory, instruments, and audio resources"
-  },
-  { 
-    name: "Sponsored", 
-    icon: Award, 
-    color: "from-amber-500/20 to-amber-600/20 dark:from-amber-500/10 dark:to-amber-600/10",
-    description: "Free resources provided by our sponsors and partners",
-    featured: true
   },
 ];
 
@@ -81,23 +81,23 @@ export const Categories = () => {
                 "bg-white dark:bg-gray-800",
                 selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue",
                 // Special styling for sponsored category
-                isSponsored && "shadow-[0_0_15px_rgba(249,115,22,0.6)] dark:shadow-[0_0_20px_rgba(249,115,22,0.5)]",
-                isSponsored && "border-amber-500 animate-pulse"
+                isSponsored && "animate-neon-pulse border-amber-500 border-2 dark:border-amber-400",
+                isSponsored && "row-span-1 col-span-1 md:col-span-2 lg:col-span-1"
               )}
               onClick={() => handleCategoryClick(category.name)}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} transition-opacity ${isSponsored ? 'opacity-70' : ''}`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} ${isSponsored ? 'animate-gradient opacity-60' : ''}`} />
               
               {/* Glow effect for sponsored category */}
               {isSponsored && (
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 animate-gradient z-0 pointer-events-none"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 opacity-20 rounded-lg blur-md"></div>
               )}
               
               <div className="relative z-10">
                 <div className="flex items-center space-x-4">
                   <div className={cn(
                     "p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform",
-                    isSponsored && "bg-amber-100 dark:bg-amber-900/60"
+                    isSponsored && "bg-amber-100 dark:bg-amber-900/60 scale-110"
                   )}>
                     <category.icon className={cn(
                       "w-6 h-6 text-gray-700 dark:text-gray-300",
@@ -119,6 +119,13 @@ export const Categories = () => {
                 <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">
                   {category.description}
                 </p>
+                {isSponsored && (
+                  <div className="mt-3 p-2 bg-gradient-to-r from-amber-100/50 to-transparent dark:from-amber-900/30 dark:to-transparent rounded">
+                    <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">
+                      Premium quality resources available for free!
+                    </p>
+                  </div>
+                )}
               </div>
             </Card>
           );

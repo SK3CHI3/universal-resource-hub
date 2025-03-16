@@ -30,11 +30,14 @@ export const ResourceListItem = memo(({
 
   return (
     <Card className={cn(
-      "hover:shadow-lg transition-shadow w-full",
-      sponsored && "border-amber-500 dark:border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+      "hover:shadow-lg transition-shadow w-full relative",
+      sponsored && "border-amber-500 dark:border-amber-400 border-2 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
     )}>
+      {sponsored && (
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-500 opacity-20 rounded-lg blur"></div>
+      )}
       <CardContent className={cn(
-        "flex items-center gap-4 p-4",
+        "flex items-center gap-4 p-4 relative",
         sponsored && "bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-900/20 dark:to-transparent"
       )}>
         <div className="flex-grow">
@@ -43,10 +46,12 @@ export const ResourceListItem = memo(({
               "font-semibold", 
               sponsored && "text-amber-700 dark:text-amber-400"
             )}>{title}</h3>
-            <div className="flex items-center">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm ml-1">{rating}</span>
-            </div>
+            {rating && (
+              <div className="flex items-center">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-sm ml-1">{rating}</span>
+              </div>
+            )}
             {sponsored && (
               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex items-center gap-1 shadow-md">
                 <Award className="w-3 h-3" />

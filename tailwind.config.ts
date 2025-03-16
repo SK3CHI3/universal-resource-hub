@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 const animations = {
@@ -22,6 +23,10 @@ const animations = {
       "0%, 100%": { backgroundPosition: "0% 50%" },
       "50%": { backgroundPosition: "100% 50%" },
     },
+    "neon-pulse": {
+      "0%, 100%": { boxShadow: "0 0 10px 2px rgba(245,158,11,0.7), 0 0 20px 6px rgba(245,158,11,0.5)" },
+      "50%": { boxShadow: "0 0 15px 4px rgba(245,158,11,0.9), 0 0 30px 8px rgba(245,158,11,0.7)" },
+    },
   },
   animation: {
     "accordion-down": "accordion-down 0.2s ease-out",
@@ -29,6 +34,7 @@ const animations = {
     float: "float 6s ease-in-out infinite",
     "float-delayed": "float-delayed 8s ease-in-out infinite 1s",
     gradient: "gradient 15s ease infinite",
+    "neon-pulse": "neon-pulse 2s ease-in-out infinite",
   },
 };
 

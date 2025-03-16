@@ -188,16 +188,12 @@ async function scrapeResource(source: typeof SCRAPING_SOURCES[0]): Promise<Scrap
   }
 }
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
-  }
-
+async function collectResources(): Promise<{ success: boolean, resourcesAdded: number, urlsScraped: number }> {
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    );
 
     console.log('Starting automated resource collection');
 
@@ -231,6 +227,24 @@ Deno.serve(async (req) => {
 
         // Process and insert each scraped resource
         for (const resource of scrapedResources) {
+          // Check if resource with the same link already exists to avoid duplicates
+          const { data: existingResources, error: checkError } = await supabase
+            .from('resources')
+            .select('id')
+            .eq('link', resource.link)
+            .limit(1);
+
+          if (checkError) {
+            console.error(`Error checking for existing resource: ${checkError.message}`);
+            continue;
+          }
+
+          // Skip if resource already exists
+          if (existingResources && existingResources.length > 0) {
+            console.log(`Resource with link ${resource.link} already exists, skipping`);
+            continue;
+          }
+
           const { error: insertError } = await supabase
             .from('resources')
             .insert({
@@ -266,16 +280,41 @@ Deno.serve(async (req) => {
     if (updateError) throw updateError;
 
     console.log(`Collection completed: ${totalResourcesAdded} resources added from ${urlsScraped} sources`);
+    
+    return {
+      success: true,
+      resourcesAdded: totalResourcesAdded,
+      urlsScraped
+    };
+  } catch (error) {
+    console.error('Error in collect-resources function:', error);
+    return { 
+      success: false, 
+      resourcesAdded: 0,
+      urlsScraped: 0
+    };
+  }
+}
 
+// The main handler for the edge function
+// This will be called when the function is invoked via HTTP
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const result = await collectResources();
+    
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Resources collected successfully',
-        resourcesAdded: totalResourcesAdded,
-        urlsScraped,
+        resourcesAdded: result.resourcesAdded,
+        urlsScraped: result.urlsScraped,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    );
   } catch (error) {
     console.error('Error in collect-resources function:', error);
     
@@ -285,6 +324,6 @@ Deno.serve(async (req) => {
         error: error.message 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    );
   }
-})
+});

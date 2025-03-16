@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
@@ -14,6 +15,7 @@ import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { ResourceForm } from '@/components/admin/ResourceForm';
 import { ResourceTable } from '@/components/admin/ResourceTable';
+import { ResourceCollector } from '@/components/admin/ResourceCollector';
 
 const AdminDashboard = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -162,6 +164,38 @@ const AdminDashboard = () => {
             onSubmit={handleSubmit}
           />
         </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="lg:col-span-1">
+          <ResourceCollector />
+        </div>
+        <div className="lg:col-span-2">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Resource Stats</CardTitle>
+              <CardDescription>
+                Overview of your resource collection
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <p className="text-blue-700 dark:text-blue-300 text-sm font-medium">Total Resources</p>
+                  <p className="text-2xl font-bold">{resources.length}</p>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <p className="text-green-700 dark:text-green-300 text-sm font-medium">Unique Categories</p>
+                  <p className="text-2xl font-bold">{new Set(resources.map(r => r.category)).size}</p>
+                </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <p className="text-purple-700 dark:text-purple-300 text-sm font-medium">Total Clicks</p>
+                  <p className="text-2xl font-bold">{resources.reduce((sum, r) => sum + (r.clicks || 0), 0)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Card>

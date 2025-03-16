@@ -1,7 +1,6 @@
 Universal Resource Hub
 Welcome to the Universal Resource Hub! This comprehensive web platform is designed to aggregate, organize, and present free educational and professional resources across multiple categories. With a user-friendly interface and automated resource collection, discovering valuable content has never been easier.
 Key Features
-
 - Resource Discovery
 - Advanced Search: Enjoy real-time search functionality with debounced input.
 - Category Filtering: Explore resources across six main categories:
@@ -12,7 +11,7 @@ Key Features
 - Books (Free ebooks, digital publications)
 - Music (Music theory, instruments)
 
-  
+
 - User Interface
 - Responsive Design: Fully responsive layout suitable for mobile, tablet, and desktop.
 - Modern UI:

@@ -1,5 +1,4 @@
-
-import { Book, Code, Palette, Briefcase, GraduationCap, Music, Award } from "lucide-react";
+import { Book, Code, Palette, Briefcase, GraduationCap, Music } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useResourceStore } from "@/store/resources";
 import { cn } from "@/lib/utils";
@@ -37,13 +36,6 @@ const categories: Category[] = [
     description: "Free ebooks, digital publications, and reading materials"
   },
   { 
-    name: "Sponsored", 
-    icon: Award, 
-    color: "from-amber-500/30 to-orange-500/30 dark:from-amber-500/20 dark:to-orange-500/20",
-    description: "Free resources provided by our sponsors and partners",
-    featured: true
-  },
-  { 
     name: "Music", 
     icon: Music, 
     color: "from-pink-500/20 to-pink-600/20 dark:from-pink-500/10 dark:to-pink-600/10",
@@ -67,69 +59,34 @@ export const Categories = () => {
         Browse through our curated collection of free resources across various categories
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {categories.map((category) => {
-          // Special styling for sponsored category
-          const isSponsored = category.name === "Sponsored";
-          
-          return (
-            <Card
-              key={category.name}
-              className={cn(
-                "p-6 transition-all cursor-pointer group relative overflow-hidden",
-                "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]",
-                "border border-gray-200 dark:border-gray-700",
-                "bg-white dark:bg-gray-800",
-                selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue",
-                // Special styling for sponsored category
-                isSponsored && "animate-neon-pulse border-amber-500 border-2 dark:border-amber-400",
-                isSponsored && "row-span-1 col-span-1 md:col-span-2 lg:col-span-1"
-              )}
-              onClick={() => handleCategoryClick(category.name)}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} ${isSponsored ? 'animate-gradient opacity-60' : ''}`} />
-              
-              {/* Glow effect for sponsored category */}
-              {isSponsored && (
-                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 opacity-20 rounded-lg blur-md"></div>
-              )}
-              
-              <div className="relative z-10">
-                <div className="flex items-center space-x-4">
-                  <div className={cn(
-                    "p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform",
-                    isSponsored && "bg-amber-100 dark:bg-amber-900/60 scale-110"
-                  )}>
-                    <category.icon className={cn(
-                      "w-6 h-6 text-gray-700 dark:text-gray-300",
-                      isSponsored && "text-amber-600 dark:text-amber-400"
-                    )} />
-                  </div>
-                  <h3 className={cn(
-                    "text-xl font-semibold text-gray-900 dark:text-gray-100",
-                    isSponsored && "text-amber-600 dark:text-amber-400"
-                  )}>
-                    {category.name}
-                    {isSponsored && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">
-                        Featured
-                      </span>
-                    )}
-                  </h3>
+        {categories.map((category) => (
+          <Card
+            key={category.name}
+            className={cn(
+              "p-6 transition-all cursor-pointer group relative overflow-hidden",
+              "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]",
+              "border border-gray-200 dark:border-gray-700",
+              "bg-white dark:bg-gray-800",
+              selectedCategory === category.name && "ring-2 ring-brand-purple dark:ring-brand-blue"
+            )}
+            onClick={() => handleCategoryClick(category.name)}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${category.color} transition-opacity`} />
+            <div className="relative z-10">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:scale-110 transition-transform">
+                  <category.icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                 </div>
-                <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">
-                  {category.description}
-                </p>
-                {isSponsored && (
-                  <div className="mt-3 p-2 bg-gradient-to-r from-amber-100/50 to-transparent dark:from-amber-900/30 dark:to-transparent rounded">
-                    <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">
-                      Premium quality resources available for free!
-                    </p>
-                  </div>
-                )}
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {category.name}
+                </h3>
               </div>
-            </Card>
-          );
-        })}
+              <p className="mt-4 text-gray-600 dark:text-gray-300 text-sm">
+                {category.description}
+              </p>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );

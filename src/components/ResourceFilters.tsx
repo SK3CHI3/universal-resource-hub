@@ -1,10 +1,8 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useResourceStore } from "@/store/resources";
-import { Filter, Award } from "lucide-react";
+import { Filter } from "lucide-react";
 import { useMemo } from "react";
-import { cn } from "@/lib/utils";
 
 export const ResourceFilters = () => {
   const resources = useResourceStore((state) => state.resources);
@@ -26,26 +24,16 @@ export const ResourceFilters = () => {
       >
         All
       </Button>
-      {categories.map((category) => {
-        const isSponsored = category === "Sponsored";
-        
-        return (
-          <Badge
-            key={category}
-            variant={selectedCategory === category ? "default" : "outline"}
-            className={cn(
-              "cursor-pointer hover:bg-primary/90",
-              isSponsored && selectedCategory !== category && "border-amber-500 dark:border-amber-400",
-              isSponsored && selectedCategory === category && "bg-gradient-to-r from-amber-500 to-orange-500",
-              isSponsored && "flex items-center gap-1"
-            )}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {isSponsored && <Award className="w-3 h-3" />}
-            {category}
-          </Badge>
-        );
-      })}
+      {categories.map((category) => (
+        <Badge
+          key={category}
+          variant={selectedCategory === category ? "default" : "outline"}
+          className="cursor-pointer hover:bg-primary/90"
+          onClick={() => setSelectedCategory(category)}
+        >
+          {category}
+        </Badge>
+      ))}
     </div>
   );
 };

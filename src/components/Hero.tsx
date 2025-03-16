@@ -1,4 +1,3 @@
-
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useResourceStore } from "@/store/resources";
@@ -23,10 +22,6 @@ export const Hero = () => {
         title: "Searching...",
         description: `Finding resources matching "${searchInput}"`,
       });
-      
-      // Clear any previous category selection to allow searching across all categories
-      useResourceStore.getState().setSelectedCategory(null);
-      
       const element = document.getElementById('resources');
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });

@@ -1,4 +1,3 @@
-
 export interface Resource {
   id: string;
   title: string;
@@ -12,13 +11,28 @@ export interface Resource {
   dateAdded: string;
   visits?: number;
   clicks?: number;
-  sponsored?: boolean;
 }
 
-export interface Category {
+export type Category = {
   name: string;
-  icon: React.ElementType;
+  icon: any;
   color: string;
   description: string;
-  featured?: boolean;
+}
+
+export interface Analytics {
+  id: string;
+  resource_id: string;
+  event_type: 'visit' | 'click';
+  created_at: string;
+  user_agent?: string;
+  ip_address?: string;
+}
+
+export interface AdminSettings {
+  id: string;
+  last_sync: string;
+  sync_sources: Record<string, any>;
+  created_at: string;
+  updated_at: string;
 }

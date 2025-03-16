@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { Resource } from '@/types';
 import { resources as initialResources } from './resourcesData';
@@ -58,9 +57,8 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     let filtered = [...state.resources];
     
     // Apply search filter if there's a non-empty search query
-    if (state.searchQuery && state.searchQuery.trim() !== '') {
-      const searchTerm = state.searchQuery.toLowerCase().trim();
-      console.log('Filtering with search query:', searchTerm);
+    if (state.searchQuery) {
+      console.log('Filtering with search query:', state.searchQuery);
       
       filtered = filtered.filter((resource) => {
         // Create a searchable string from all relevant resource fields
@@ -76,7 +74,8 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .toLowerCase();
         
         // Check if the searchable text includes the search query
-        const matches = searchableText.includes(searchTerm);
+        const matches = searchableText.includes(state.searchQuery);
+        console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
         return matches;
       });
       

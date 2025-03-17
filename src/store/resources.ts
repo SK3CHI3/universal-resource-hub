@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { Resource } from '@/types';
 import { resources as initialResources } from './resourcesData';
@@ -37,12 +38,14 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      // Try to get resources from Supabase
+      // Get resources from Supabase with proper ordering for newest first
       const { data, error } = await supabase
         .from('resources')
-        .select('*');
+        .select('*')
+        .order('date_added', { ascending: false });
       
       if (error) {
+        console.error('Error fetching resources:', error);
         throw new Error(error.message);
       }
       
@@ -58,7 +61,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           link: item.link,
           category: item.category,
           imageUrl: item.image_url,
-          rating: item.rating,
+          rating: item.rating || 0,
           dateAdded: item.date_added || new Date().toISOString(),
           visits: item.visits || 0,
           clicks: item.clicks || 0,
@@ -66,9 +69,11 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
         }));
         
         set({ resources: mappedResources, isLoading: false });
+        console.log(`Loaded ${mappedResources.length} resources from Supabase`);
       } else {
         // If no data from Supabase, use initial data
         set({ resources: initialResources, isLoading: false });
+        console.log(`Using ${initialResources.length} initial resources`);
       }
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -108,7 +113,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     let filtered = [...state.resources];
     
     // Apply search filter if there's a non-empty search query
-    if (state.searchQuery) {
+    if (state.searchQuery && state.searchQuery.trim() !== '') {
       console.log('Filtering with search query:', state.searchQuery);
       
       filtered = filtered.filter((resource) => {
@@ -124,13 +129,17 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
           .join(' ')
           .toLowerCase();
         
-        // Check if the searchable text includes the search query
-        const matches = searchableText.includes(state.searchQuery.toLowerCase());
-        console.log(`Resource ${resource.title} ${matches ? 'matches' : 'does not match'} search`);
+        const searchTerms = state.searchQuery.toLowerCase().trim().split(/\s+/);
+        
+        // Check if any of the search terms match
+        const matches = searchTerms.some(term => 
+          searchableText.includes(term)
+        );
+        
         return matches;
       });
       
-      console.log(`Found ${filtered.length} matching resources`);
+      console.log(`Found ${filtered.length} matching resources for search: "${state.searchQuery}"`);
     }
 
     // Apply category filter if selected
@@ -138,6 +147,7 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
       filtered = filtered.filter(
         resource => resource.category === state.selectedCategory
       );
+      console.log(`Filtered to ${filtered.length} resources in category: ${state.selectedCategory}`);
     }
 
     // Apply sorting

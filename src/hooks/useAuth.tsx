@@ -32,35 +32,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const setupAuth = async () => {
       setIsLoading(true);
       
-      // Check active session
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user || null);
-      
-      if (session?.user) {
-        const isPremium = await checkPremiumStatus();
-        setIsPremium(isPremium);
-      }
-      
-      // Set up auth state change listener
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      try {
+        // Check active session
+        const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user || null);
         
         if (session?.user) {
           const isPremium = await checkPremiumStatus();
           setIsPremium(isPremium);
-        } else {
-          setIsPremium(false);
         }
-      });
-      
-      setIsLoading(false);
-      
-      // Cleanup subscription
-      return () => {
-        subscription.unsubscribe();
-      };
+        
+        // Set up auth state change listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('Auth state changed:', event, session?.user?.email);
+          setSession(session);
+          setUser(session?.user || null);
+          
+          if (session?.user) {
+            const isPremium = await checkPremiumStatus();
+            setIsPremium(isPremium);
+          } else {
+            setIsPremium(false);
+          }
+        });
+        
+        // Cleanup subscription
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Error setting up auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     setupAuth();
@@ -115,6 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshSession = async () => {
     try {
+      setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user || null);
@@ -125,15 +131,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Error refreshing session:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
+      if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: `You've successfully signed in.`,
+          duration: 3000,
+        });
+      }
+      
       return { error: null };
     } catch (error: any) {
+      console.error('Sign in error:', error);
       toast({
         title: "Sign in failed",
         description: error.message,
@@ -145,7 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -156,6 +174,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       if (error) throw error;
+      
+      // After signup, update the user's profile with their name
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ 
+            full_name: fullName,
+            email: email 
+          })
+          .eq('id', data.user.id);
+        
+        if (profileError) {
+          console.error('Error updating profile:', profileError);
+        }
+      }
       
       toast({
         title: "Account created",

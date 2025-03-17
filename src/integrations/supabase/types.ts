@@ -181,6 +181,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_subscriptions: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          plan_type: string
+          status: string
+          start_date: string
+          end_date: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       setup_cron_extensions: {
         Args: Record<PropertyKey, never>
         Returns: boolean

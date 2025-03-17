@@ -81,14 +81,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Use a direct query with a function to avoid type issues
+      // Call the function directly to get active subscriptions
       const { data: subscriptions, error: functionError } = await supabase
-        .rpc('get_user_subscriptions', { user_id: user.id });
+        .rpc('get_user_subscriptions', { p_user_id: user.id });
       
       if (functionError) {
         console.error('Error calling get_user_subscriptions function:', functionError);
         
-        // Fallback to a direct query - this could be used if the RPC function has issues
+        // Fallback to a direct query if the RPC function has issues
         const { data: subData, error: directSubError } = await supabase
           .from('subscriptions')
           .select('*')

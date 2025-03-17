@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ const Subscription = () => {
     
     const { data, error } = await supabase
       .from('user_preferences')
-      .select('*')
+      .select('receive_daily_emails')
       .eq('user_id', user.id)
       .single();
     
@@ -93,24 +92,21 @@ const Subscription = () => {
       const oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
       
-      // Use direct query to the subscriptions table
-      const { error: subError } = await supabase.rpc('get_user_subscriptions', { user_id: user.id }); 
+      // Try to call the function first
+      const { error: funcError } = await supabase.rpc('get_user_subscriptions', { p_user_id: user.id }); 
       
-      // Check if there's an error because the function doesn't exist
-      if (subError) {
-        // Direct insert if the function fails
-        const { error: directSubError } = await supabase
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_type: 'premium',
-            status: 'active',
-            start_date: new Date().toISOString(),
-            end_date: oneYearFromNow.toISOString(),
-          });
+      // If there's an error, insert directly
+      const { error: subError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: user.id,
+          plan_type: 'premium',
+          status: 'active',
+          start_date: new Date().toISOString(),
+          end_date: oneYearFromNow.toISOString(),
+        });
 
-        if (directSubError) throw directSubError;
-      }
+      if (subError) throw subError;
 
       // Create email preferences if they don't exist
       const { error: prefError } = await supabase

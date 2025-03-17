@@ -1,6 +1,6 @@
 
 -- Create a function to get active subscriptions for a user
-CREATE OR REPLACE FUNCTION public.get_user_subscriptions(user_id UUID)
+CREATE OR REPLACE FUNCTION public.get_user_subscriptions(p_user_id UUID)
 RETURNS TABLE (
   id UUID,
   user_id UUID,
@@ -18,7 +18,7 @@ BEGIN
   RETURN QUERY
   SELECT s.*
   FROM public.subscriptions s
-  WHERE s.user_id = get_user_subscriptions.user_id
+  WHERE s.user_id = p_user_id
   AND s.status = 'active'
   AND s.end_date > NOW();
 END;

@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -47,23 +48,27 @@ const Subscription = () => {
   const loadUserPreferences = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
-      .from('user_preferences')
-      .select('receive_daily_emails')
-      .eq('user_id', user.id)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('receive_daily_emails')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+        throw error;
+      }
+      
+      if (data) {
+        setEmailPreferences({
+          receiveDailyEmails: data.receive_daily_emails
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Error loading preferences",
         description: error.message,
         variant: "destructive",
-      });
-    }
-    
-    if (data) {
-      setEmailPreferences({
-        receiveDailyEmails: data.receive_daily_emails
       });
     }
   };
@@ -95,7 +100,7 @@ const Subscription = () => {
       // Try to call the function first
       const { error: funcError } = await supabase.rpc('get_user_subscriptions', { p_user_id: user.id }); 
       
-      // If there's an error, insert directly
+      // Insert the subscription
       const { error: subError } = await supabase
         .from('subscriptions')
         .insert({

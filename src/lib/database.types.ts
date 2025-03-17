@@ -162,11 +162,59 @@ export interface Database {
           updated_at?: string
         }
       }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          receive_daily_emails: boolean
+          email_frequency: string
+          last_email_sent?: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          receive_daily_emails?: boolean
+          email_frequency?: string
+          last_email_sent?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          receive_daily_emails?: boolean
+          email_frequency?: string
+          last_email_sent?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Functions: {
-      increment: {
-        Args: Record<string, unknown>
-        Returns: number
+      get_user_subscriptions: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          plan_type: string
+          status: string
+          start_date: string
+          end_date: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      setup_cron_extensions: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      setup_daily_resource_collection: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
   }

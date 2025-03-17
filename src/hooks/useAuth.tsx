@@ -3,6 +3,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { supabase } from '@/lib/supabase';
 import { Session, User, AuthError } from '@supabase/supabase-js';
 import { useToast } from '@/components/ui/use-toast';
+import { Profile, Subscription } from '@/types';
 
 type AuthContextType = {
   session: Session | null;

@@ -3,11 +3,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Shield, Sparkles, Star } from "lucide-react";
+import { Check, Shield, Sparkles, Star, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const planFeatures = {
   free: [
@@ -21,6 +23,7 @@ const planFeatures = {
     "Access to sponsored resources",
     "Priority support",
     "No advertisements",
+    "Daily email with resource updates",
     "Early access to new resources",
   ],
 };
@@ -28,14 +31,43 @@ const planFeatures = {
 const Subscription = () => {
   const { user, isPremium, refreshSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [emailPreferences, setEmailPreferences] = useState({
+    receiveDailyEmails: true
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     if (!user) {
       navigate("/auth");
+    } else {
+      loadUserPreferences();
     }
   }, [user, navigate]);
+
+  const loadUserPreferences = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('user_preferences')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+      toast({
+        title: "Error loading preferences",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    
+    if (data) {
+      setEmailPreferences({
+        receiveDailyEmails: data.receive_daily_emails
+      });
+    }
+  };
 
   const handleUpgrade = async () => {
     if (!user) {
@@ -46,8 +78,8 @@ const Subscription = () => {
     setIsLoading(true);
 
     try {
-      // For demo purposes, we'll just upgrade the user without payment processing
-      const { error } = await supabase
+      // Update profile is_premium status
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
           is_premium: true,
@@ -55,24 +87,42 @@ const Subscription = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       // Create subscription record
       const oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
       
-      // Create a subscription with type assertion
-      const { error: subError } = await supabase
-        .from('subscriptions')
-        .insert({
+      // Use direct query to the subscriptions table
+      const { error: subError } = await supabase.rpc('get_user_subscriptions', { user_id: user.id }); 
+      
+      // Check if there's an error because the function doesn't exist
+      if (subError) {
+        // Direct insert if the function fails
+        const { error: directSubError } = await supabase
+          .from('subscriptions')
+          .insert({
+            user_id: user.id,
+            plan_type: 'premium',
+            status: 'active',
+            start_date: new Date().toISOString(),
+            end_date: oneYearFromNow.toISOString(),
+          });
+
+        if (directSubError) throw directSubError;
+      }
+
+      // Create email preferences if they don't exist
+      const { error: prefError } = await supabase
+        .from('user_preferences')
+        .upsert({
           user_id: user.id,
-          plan_type: 'premium',
-          status: 'active',
-          start_date: new Date().toISOString(),
-          end_date: oneYearFromNow.toISOString(),
+          receive_daily_emails: emailPreferences.receiveDailyEmails,
+          email_frequency: 'daily',
+          updated_at: new Date().toISOString()
         });
 
-      if (subError) throw subError;
+      if (prefError) throw prefError;
 
       await refreshSession();
       
@@ -92,6 +142,35 @@ const Subscription = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEmailPreferenceChange = async (value: boolean) => {
+    setEmailPreferences({ ...emailPreferences, receiveDailyEmails: value });
+    
+    if (isPremium && user) {
+      try {
+        const { error } = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: user.id,
+            receive_daily_emails: value,
+            updated_at: new Date().toISOString()
+          });
+          
+        if (error) throw error;
+        
+        toast({
+          title: value ? "Email updates enabled" : "Email updates disabled",
+          description: value ? "You'll receive daily resource updates" : "You won't receive daily resource updates",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Failed to update preference",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -152,7 +231,7 @@ const Subscription = () => {
                 <Star className="h-6 w-6 text-amber-500 fill-amber-500" />
               </CardTitle>
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold">$9.99</span>
+                <span className="text-3xl font-bold">$1.00</span>
                 <span className="text-gray-500 ml-1">/month</span>
               </div>
               <CardDescription>
@@ -168,6 +247,22 @@ const Subscription = () => {
                   </li>
                 ))}
               </ul>
+              
+              {/* Email preferences toggle */}
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="daily-email"
+                    checked={emailPreferences.receiveDailyEmails}
+                    onCheckedChange={handleEmailPreferenceChange}
+                    disabled={!isPremium && !isLoading}
+                  />
+                  <Label htmlFor="daily-email" className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" /> 
+                    Receive daily resource emails
+                  </Label>
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
               {isPremium ? (
@@ -199,6 +294,27 @@ const Subscription = () => {
               )}
             </CardFooter>
           </Card>
+        </div>
+        
+        {/* Navigation buttons */}
+        <div className="mt-10 flex justify-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+          >
+            Back to Home
+          </Button>
+          
+          {isPremium && (
+            <Button 
+              variant="default" 
+              onClick={() => navigate('/resources')}
+              className="bg-amber-500 hover:bg-amber-600"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Browse Premium Resources
+            </Button>
+          )}
         </div>
       </div>
     </div>

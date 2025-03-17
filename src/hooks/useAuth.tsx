@@ -69,10 +69,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!user) return false;
       
-      // Check profile premium status using a simpler query approach
+      // Check profile premium status
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('is_admin, is_premium')
         .eq('id', user.id)
         .single();
       
@@ -81,13 +81,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Using a more generic approach for subscriptions to avoid type issues
-      const { data: subscriptions, error: subError } = await supabase
-        .rpc('get_user_subscriptions', { user_id: user.id }) 
-        .select('*');
+      // Use a direct query with a function to avoid type issues
+      const { data: subscriptions, error: functionError } = await supabase
+        .rpc('get_user_subscriptions', { user_id: user.id });
       
-      if (subError) {
-        // Fallback to a direct query with type assertion if RPC is not available
+      if (functionError) {
+        console.error('Error calling get_user_subscriptions function:', functionError);
+        
+        // Fallback to a direct query - this could be used if the RPC function has issues
         const { data: subData, error: directSubError } = await supabase
           .from('subscriptions')
           .select('*')

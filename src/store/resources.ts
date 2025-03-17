@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { Resource } from '@/types';
 import { resources as initialResources } from './resourcesData';

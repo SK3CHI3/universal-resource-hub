@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,10 @@ const Subscription = () => {
       // For demo purposes, we'll just upgrade the user without payment processing
       const { error } = await supabase
         .from('profiles')
-        .update({ is_premium: true })
+        .update({ 
+          is_premium: true,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', user.id);
 
       if (error) throw error;
@@ -57,15 +61,16 @@ const Subscription = () => {
       const oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
       
-      // Using a type assertion for the subscriptions table
+      // Create a subscription with type assertion
       const { error: subError } = await supabase
         .from('subscriptions')
         .insert({
           user_id: user.id,
           plan_type: 'premium',
           status: 'active',
+          start_date: new Date().toISOString(),
           end_date: oneYearFromNow.toISOString(),
-        } as any);
+        });
 
       if (subError) throw subError;
 

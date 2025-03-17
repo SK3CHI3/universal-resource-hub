@@ -69,10 +69,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!user) return false;
       
-      // Check profile premium status
+      // Check profile premium status using a simpler query approach
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('is_premium')
+        .select('*')
         .eq('id', user.id)
         .single();
       
@@ -81,19 +81,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Check if we have active subscriptions
-      // Note: Since we don't have direct typing for 'subscriptions' in the Database type,
-      // we'll use a type assertion here
+      // Using a more generic approach for subscriptions to avoid type issues
       const { data: subscriptions, error: subError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .gt('end_date', new Date().toISOString());
+        .rpc('get_user_subscriptions', { user_id: user.id }) 
+        .select('*');
       
       if (subError) {
-        console.error('Error fetching subscription status:', subError);
-        return false;
+        // Fallback to a direct query with type assertion if RPC is not available
+        const { data: subData, error: directSubError } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .gt('end_date', new Date().toISOString());
+          
+        if (directSubError) {
+          console.error('Error fetching subscription status:', directSubError);
+          return Boolean(profile?.is_premium);
+        }
+        
+        return Boolean(profile?.is_premium) || (subData && subData.length > 0);
       }
       
       const hasActiveSubscription = subscriptions && subscriptions.length > 0;

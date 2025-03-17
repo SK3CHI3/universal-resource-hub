@@ -46,21 +46,33 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          email: string | null
+          full_name: string | null
           id: string
           is_admin: boolean | null
+          is_premium: boolean | null
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id: string
           is_admin?: boolean | null
+          is_premium?: boolean | null
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          is_premium?: boolean | null
           updated_at?: string
         }
         Relationships: []
@@ -73,6 +85,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_sponsored: boolean | null
           link: string
           rating: number | null
           source: string
@@ -87,6 +100,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_sponsored?: boolean | null
           link: string
           rating?: number | null
           source: string
@@ -101,6 +115,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_sponsored?: boolean | null
           link?: string
           rating?: number | null
           source?: string
@@ -173,6 +188,69 @@ export type Database = {
           scraping_frequency?: string | null
           updated_at?: string | null
           url?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          plan_type: string
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          plan_type: string
+          start_date?: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          plan_type?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_frequency: string
+          id: string
+          last_email_sent: string | null
+          receive_daily_emails: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_frequency?: string
+          id?: string
+          last_email_sent?: string | null
+          receive_daily_emails?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_frequency?: string
+          id?: string
+          last_email_sent?: string | null
+          receive_daily_emails?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

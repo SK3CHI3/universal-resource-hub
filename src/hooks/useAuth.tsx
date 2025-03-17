@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Call the function directly to get active subscriptions
+      // Call the function to get active subscriptions
       const { data: subscriptions, error: functionError } = await supabase
         .rpc('get_user_subscriptions', { p_user_id: user.id });
       

@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -97,10 +96,7 @@ const Subscription = () => {
       const oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
       
-      // Try to call the function first
-      const { error: funcError } = await supabase.rpc('get_user_subscriptions', { p_user_id: user.id }); 
-      
-      // Insert the subscription
+      // Create the subscription
       const { error: subError } = await supabase
         .from('subscriptions')
         .insert({

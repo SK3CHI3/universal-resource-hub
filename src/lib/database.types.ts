@@ -1,3 +1,4 @@
+
 export interface Database {
   public: {
     Tables: {
@@ -15,6 +16,7 @@ export interface Database {
           dateAdded: string
           visits: number
           clicks: number
+          is_sponsored?: boolean
         }
         Insert: {
           id?: string
@@ -29,6 +31,7 @@ export interface Database {
           dateAdded?: string
           visits?: number
           clicks?: number
+          is_sponsored?: boolean
         }
         Update: {
           id?: string
@@ -43,6 +46,7 @@ export interface Database {
           dateAdded?: string
           visits?: number
           clicks?: number
+          is_sponsored?: boolean
         }
       }
       analytics: {
@@ -90,6 +94,70 @@ export interface Database {
           id?: string
           last_sync?: string
           sync_sources?: Record<string, any>
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          email?: string
+          full_name?: string
+          avatar_url?: string
+          is_premium: boolean
+          created_at: string
+          updated_at: string
+          is_admin?: boolean
+        }
+        Insert: {
+          id: string
+          email?: string
+          full_name?: string
+          avatar_url?: string
+          is_premium?: boolean
+          created_at?: string
+          updated_at?: string
+          is_admin?: boolean
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string
+          avatar_url?: string
+          is_premium?: boolean
+          created_at?: string
+          updated_at?: string
+          is_admin?: boolean
+        }
+      }
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          plan_type: string
+          status: string
+          start_date: string
+          end_date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          plan_type: string
+          status: string
+          start_date?: string
+          end_date: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          plan_type?: string
+          status?: string
+          start_date?: string
+          end_date?: string
           created_at?: string
           updated_at?: string
         }

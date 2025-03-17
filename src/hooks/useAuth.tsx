@@ -67,11 +67,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkPremiumStatus = async (): Promise<boolean> => {
     try {
+      if (!user) return false;
+      
       // Check profile premium status
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_premium')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
       
       if (profileError) {
@@ -79,14 +81,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Check subscription status
+      // Check if we have active subscriptions
+      // Note: Since we don't have direct typing for 'subscriptions' in the Database type,
+      // we'll use a type assertion here
       const { data: subscriptions, error: subError } = await supabase
         .from('subscriptions')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .eq('status', 'active')
-        .gt('end_date', new Date().toISOString())
-        .limit(1);
+        .gt('end_date', new Date().toISOString());
       
       if (subError) {
         console.error('Error fetching subscription status:', subError);
@@ -94,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       const hasActiveSubscription = subscriptions && subscriptions.length > 0;
-      return profile?.is_premium || hasActiveSubscription;
+      return Boolean(profile?.is_premium) || hasActiveSubscription;
     } catch (err) {
       console.error('Error checking premium status:', err);
       return false;

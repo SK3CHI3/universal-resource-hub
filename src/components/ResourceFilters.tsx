@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useResourceStore } from "@/store/resources";
@@ -10,8 +11,9 @@ export const ResourceFilters = () => {
   const setSelectedCategory = useResourceStore((state) => state.setSelectedCategory);
 
   const categories = useMemo(() => {
+    // Get unique categories from resources
     const uniqueCategories = new Set(resources.map(resource => resource.category));
-    return Array.from(uniqueCategories);
+    return Array.from(uniqueCategories).sort();
   }, [resources]);
 
   return (
@@ -24,16 +26,20 @@ export const ResourceFilters = () => {
       >
         All
       </Button>
-      {categories.map((category) => (
-        <Badge
-          key={category}
-          variant={selectedCategory === category ? "default" : "outline"}
-          className="cursor-pointer hover:bg-primary/90"
-          onClick={() => setSelectedCategory(category)}
-        >
-          {category}
-        </Badge>
-      ))}
+      {categories.length > 0 ? (
+        categories.map((category) => (
+          <Badge
+            key={category}
+            variant={selectedCategory === category ? "default" : "outline"}
+            className="cursor-pointer hover:bg-primary/90"
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </Badge>
+        ))
+      ) : (
+        <span className="text-sm text-gray-500">No categories available</span>
+      )}
     </div>
   );
 };

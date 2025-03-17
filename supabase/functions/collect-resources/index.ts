@@ -248,11 +248,18 @@ async function collectResources(): Promise<{ success: boolean, resourcesAdded: n
           const { error: insertError } = await supabase
             .from('resources')
             .insert({
-              ...resource,
+              title: resource.title,
+              description: resource.description,
+              source: resource.source,
+              tags: resource.tags,
+              link: resource.link,
+              category: resource.category,
+              image_url: resource.imageUrl,
               date_added: new Date().toISOString(),
               rating: 0,
               visits: 0,
               clicks: 0,
+              is_sponsored: false
             });
 
           if (!insertError) {

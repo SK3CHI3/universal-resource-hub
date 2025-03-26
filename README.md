@@ -54,3 +54,5 @@ Key Features
 Visit Us
 For more information and to start exploring, visit our website: https://universal-resource-hub.netlify.app/
 Discover free educational resources today!
+
+I'm Actually settng the project Up for The MMU innovation week, Where it will be the first time showing it to the world.

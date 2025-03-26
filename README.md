@@ -56,3 +56,4 @@ For more information and to start exploring, visit our website: https://universa
 Discover free educational resources today!
 
 I'm Actually settng the project Up for The MMU innovation week, Where it will be the first time showing it to the world.
+I hope I get some fundings To Prperly polish all the features which are currently free on the Project.

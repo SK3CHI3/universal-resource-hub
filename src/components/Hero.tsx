@@ -1,3 +1,4 @@
+
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useResourceStore } from "@/store/resources";
@@ -47,7 +48,7 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent dark:from-brand-purple dark:to-brand-blue dark:text-transparent">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent dark:from-purple-400 dark:via-indigo-400 dark:to-blue-500 dark:text-transparent">
           Find Free Resources to Learn, Create, and Innovate
         </h1>
         <p className="text-lg md:text-xl mb-8 max-w-2xl text-gray-600 dark:text-gray-300">

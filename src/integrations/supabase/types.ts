@@ -259,43 +259,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_subscriptions:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: {
-              subscription_id: number
-              user_id: number
-              subscription_details: string
-            }[]
-          }
-        | {
-            Args: {
-              p_user_id: string
-            }
-            Returns: {
-              id: string
-              user_id: string
-              plan_type: string
-              status: string
-              start_date: string
-              end_date: string
-              created_at: string
-              updated_at: string
-            }[]
-          }
-      handle_new_user: {
+      get_user_subscriptions: {
         Args: {
           p_user_id: string
         }
-        Returns: undefined
+        Returns: {
+          id: string
+          user_id: string
+          plan_type: string
+          status: string
+          start_date: string
+          end_date: string
+          created_at: string
+          updated_at: string
+        }[]
       }
       setup_cron_extensions: {
         Args: Record<PropertyKey, never>
-        Returns: undefined
+        Returns: boolean
       }
       setup_daily_resource_collection: {
         Args: Record<PropertyKey, never>
-        Returns: undefined
+        Returns: boolean
       }
     }
     Enums: {

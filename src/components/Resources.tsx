@@ -1,3 +1,4 @@
+
 import { memo, useRef, useState, useCallback, useEffect } from "react";
 import { ResourceList } from "./ResourceList";
 import { ResourceControls } from "./ResourceControls";
@@ -14,7 +15,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Resource } from "@/types";
-import { Card } from "@/components/ui/card";
 
 const ITEMS_PER_BATCH = 9;
 const SUGGESTED_RESOURCES_COUNT = 3;
@@ -128,11 +128,6 @@ export const Resources = memo(() => {
     navigate('/subscription');
   };
 
-  const handleClearSearch = () => {
-    useResourceStore.getState().setSearchQuery('');
-    fetchResources();
-  };
-
   return (
     <section 
       id="resources" 
@@ -232,31 +227,52 @@ export const Resources = memo(() => {
                   hasMore={hasMore}
                 />
               ) : (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-8"
+                >
                   <div className="text-center py-12">
                     <FolderSearch className="w-16 h-16 mx-auto mb-6 text-gray-400" />
                     <h2 className="text-2xl font-bold mb-2">No resources found</h2>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      No resources found matching "{debouncedSearchQuery}"
+                      {searchQuery
+                        ? `No resources found matching "${searchQuery}"`
+                        : selectedCategory
+                        ? `No resources found in ${selectedCategory}`
+                        : 'No resources available'}
                     </p>
                   </div>
                   
-                  {suggestedResources.length > 0 && (
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4">You might be interested in these resources</h3>
-                      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`}>
-                        {suggestedResources.map(resource => (
-                          <Card key={resource.id} className="p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <h4 className="font-semibold">{resource.title}</h4>
-                            <p className="text-sm text-gray-600">{resource.description}</p>
-                            <a href={resource.link} className="text-blue-500 hover:underline">View Resource</a>
-                          </Card>
-                        ))}
-                      </div>
+                  {/* Suggested resources section */}
+                  {suggestedResources.length > 0 && debouncedSearchQuery && (
+                    <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                      <h3 className="text-xl font-semibold mb-4 text-center">
+                        You might be interested in these resources
+                      </h3>
+                      {viewMode === 'grid' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <ResourceList 
+                            resources={suggestedResources}
+                            viewMode={viewMode}
+                            onLoadMore={() => {}}
+                            hasMore={false}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          <ResourceList 
+                            resources={suggestedResources}
+                            viewMode={viewMode}
+                            onLoadMore={() => {}}
+                            hasMore={false}
+                          />
+                        </div>
+                      )}
                       <div className="text-center mt-6">
                         <Button 
                           variant="outline"
-                          onClick={handleClearSearch}
+                          onClick={() => useResourceStore.getState().setSearchQuery('')}
                           className="mt-4"
                         >
                           Clear search and show all resources

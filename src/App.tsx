@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Subscription from "./pages/Subscription";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { AuthProvider } from "@/hooks/useAuth";
 
@@ -34,6 +35,7 @@ const App = () => {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/subscription" element={<Subscription />} />
+                <Route path="/dashboard" element={<UserDashboard />} />
                 <Route
                   path="/admin"
                   element={

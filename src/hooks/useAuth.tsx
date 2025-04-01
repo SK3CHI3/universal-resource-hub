@@ -5,18 +5,32 @@ import { Session, User, AuthError } from '@supabase/supabase-js';
 import { useToast } from '@/components/ui/use-toast';
 import { Profile, Subscription } from '@/types';
 
+type UserJourney = {
+  hasCompletedOnboarding: boolean;
+  lastVisitedResource: string | null;
+  favoriteCategories: string[];
+};
+
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   isAuthenticated: boolean;
   isPremium: boolean;
   isLoading: boolean;
+  userJourney: UserJourney;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
   refreshSession: () => Promise<void>;
   checkPremiumStatus: () => Promise<boolean>;
+  updateUserJourney: (journeyUpdate: Partial<UserJourney>) => Promise<void>;
+};
+
+// Default user journey
+const defaultUserJourney: UserJourney = {
+  hasCompletedOnboarding: false,
+  lastVisitedResource: null,
+  favoriteCategories: [],
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
+  const [userJourney, setUserJourney] = useState<UserJourney>(defaultUserJourney);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           const isPremium = await checkPremiumStatus();
           setIsPremium(isPremium);
+          await loadUserJourney(session.user.id);
         }
         
         // Set up auth state change listener
@@ -52,8 +68,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (session?.user) {
             const isPremium = await checkPremiumStatus();
             setIsPremium(isPremium);
+            await loadUserJourney(session.user.id);
           } else {
             setIsPremium(false);
+            setUserJourney(defaultUserJourney);
           }
         });
         
@@ -70,6 +88,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     setupAuth();
   }, []);
+
+  const loadUserJourney = async (userId: string) => {
+    try {
+      // Check if we have user journey data
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error loading user journey:', error);
+        return;
+      }
+      
+      if (data) {
+        // Convert database structure to userJourney format
+        setUserJourney({
+          hasCompletedOnboarding: data.has_completed_onboarding || false,
+          lastVisitedResource: data.last_visited_resource,
+          favoriteCategories: data.favorite_categories || [],
+        });
+      }
+    } catch (err) {
+      console.error('Error in loadUserJourney:', err);
+    }
+  };
+
+  const updateUserJourney = async (journeyUpdate: Partial<UserJourney>) => {
+    if (!user) return;
+    
+    try {
+      const updatedJourney = { ...userJourney, ...journeyUpdate };
+      setUserJourney(updatedJourney);
+      
+      // Convert to database structure
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          has_completed_onboarding: updatedJourney.hasCompletedOnboarding,
+          last_visited_resource: updatedJourney.lastVisitedResource,
+          favorite_categories: updatedJourney.favoriteCategories,
+          updated_at: new Date().toISOString()
+        });
+      
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Failed to update preferences",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const checkPremiumStatus = async (): Promise<boolean> => {
     try {
@@ -128,6 +201,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         const isPremium = await checkPremiumStatus();
         setIsPremium(isPremium);
+        await loadUserJourney(session.user.id);
       }
     } catch (error) {
       console.error('Error refreshing session:', error);
@@ -221,25 +295,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      
-      if (error) throw error;
-    } catch (error: any) {
-      toast({
-        title: "Google sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -248,12 +303,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated: !!user,
         isPremium,
         isLoading,
+        userJourney,
         signIn,
         signUp,
         signOut,
-        signInWithGoogle,
         refreshSession,
         checkPremiumStatus,
+        updateUserJourney,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,21 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FaGoogle } from "react-icons/fa";
 import { Logo } from "@/components/Logo";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { Loader2, Phone } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
+// Schema for phone authentication
+const phoneLoginSchema = z.object({
+  phone: z.string().min(10, { message: "Phone number must be at least 10 digits" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-const registerSchema = loginSchema.extend({
+const phoneRegisterSchema = phoneLoginSchema.extend({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters" }),
   confirmPassword: z.string().min(6, { message: "Confirm password must be at least 6 characters" }),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -29,27 +28,27 @@ const registerSchema = loginSchema.extend({
   path: ["confirmPassword"],
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+type PhoneLoginFormValues = z.infer<typeof phoneLoginSchema>;
+type PhoneRegisterFormValues = z.infer<typeof phoneRegisterSchema>;
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const { signIn, signUp, signInWithGoogle, isAuthenticated, isLoading } = useAuth();
+  const { signIn, signUp, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const loginForm = useForm<PhoneLoginFormValues>({
+    resolver: zodResolver(phoneLoginSchema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
     },
   });
 
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  const registerForm = useForm<PhoneRegisterFormValues>({
+    resolver: zodResolver(phoneRegisterSchema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
       fullName: "",
       confirmPassword: "",
@@ -62,26 +61,26 @@ const Auth = () => {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const handleLogin = async (values: LoginFormValues) => {
+  const handleLogin = async (values: PhoneLoginFormValues) => {
     setIsSubmitting(true);
-    const { error } = await signIn(values.email, values.password);
+    // Convert phone number to email-like format for supabase
+    const phoneAsEmail = `${values.phone.replace(/\D/g, '')}@phone.auth`;
+    const { error } = await signIn(phoneAsEmail, values.password);
     if (!error) {
       navigate("/");
     }
     setIsSubmitting(false);
   };
 
-  const handleRegister = async (values: RegisterFormValues) => {
+  const handleRegister = async (values: PhoneRegisterFormValues) => {
     setIsSubmitting(true);
-    const { error } = await signUp(values.email, values.password, values.fullName);
+    // Convert phone number to email-like format for supabase
+    const phoneAsEmail = `${values.phone.replace(/\D/g, '')}@phone.auth`;
+    const { error } = await signUp(phoneAsEmail, values.password, values.fullName);
     if (!error) {
       setActiveTab("login");
     }
     setIsSubmitting(false);
-  };
-
-  const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
   };
 
   if (isLoading) {
@@ -118,12 +117,19 @@ const Auth = () => {
                 <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                   <FormField
                     control={loginForm.control}
-                    name="email"
+                    name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
+                          <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                            <Phone className="ml-2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="1234567890"
+                              {...field}
+                              className="border-0 focus-visible:ring-0"
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -177,12 +183,19 @@ const Auth = () => {
                   
                   <FormField
                     control={registerForm.control}
-                    name="email"
+                    name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
+                          <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                            <Phone className="ml-2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="1234567890"
+                              {...field} 
+                              className="border-0 focus-visible:ring-0"
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -231,27 +244,6 @@ const Auth = () => {
               </Form>
             </TabsContent>
           </Tabs>
-          
-          <CardFooter className="flex flex-col pt-4">
-            <div className="relative w-full mb-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              type="button" 
-              className="w-full" 
-              onClick={handleGoogleSignIn}
-            >
-              <FaGoogle className="mr-2 h-4 w-4" />
-              Google
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     </div>

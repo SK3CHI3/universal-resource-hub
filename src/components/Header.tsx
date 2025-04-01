@@ -24,7 +24,7 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const { user, signOut, isAuthenticated, isPremium } = useAuth();
+  const { user, signOut, isAuthenticated, isPremium, userJourney } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,12 +74,8 @@ export const Header = () => {
     navigate('/auth');
   };
 
-  const handleProfileClick = () => {
-    // For now just a placeholder, could navigate to a profile page
-    toast({
-      title: "Profile",
-      description: "Profile page coming soon!",
-    });
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
   };
 
   const handleSubscriptionClick = () => {
@@ -89,6 +85,14 @@ export const Header = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  // Get display name from user
+  const getDisplayName = () => {
+    if (!user) return '';
+    
+    const metadata = user.user_metadata;
+    return metadata?.full_name || 'User';
   };
 
   return (
@@ -129,10 +133,18 @@ export const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {getDisplayName()}
+                  {isPremium && (
+                    <span className="ml-2 inline-flex items-center">
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                      <span className="text-xs text-amber-500 ml-1">Premium</span>
+                    </span>
+                  )}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleProfileClick}>
-                  Profile
+                <DropdownMenuItem onClick={handleDashboardClick}>
+                  Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSubscriptionClick}>
                   {isPremium ? (
